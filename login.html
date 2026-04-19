@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Masuk & Daftar | Digital Agriculture</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #27ae60;
+            --primary-dark: #219150;
+            --secondary: #e8f8f5;
+            --dark: #2c3e50;
+            --gray: #7f8c8d;
+            --light-gray: #f8f9fa;
+            --white: #ffffff;
+            --radius: 16px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { 
+            background: linear-gradient(135deg, var(--secondary) 0%, #ffffff 100%);
+            display: flex; justify-content: center; align-items: center; min-height: 100vh;
+            padding: 20px;
+        }
+
+        .auth-container {
+            background: var(--white); width: 100%; max-width: 450px; 
+            padding: 40px; border-radius: var(--radius);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        .auth-header { text-align: center; margin-bottom: 30px; }
+        .auth-header h1 { color: var(--primary); font-size: 28px; font-weight: 700; margin-bottom: 5px; }
+        .auth-header p { color: var(--gray); font-size: 14px; }
+
+        .tab-menu { display: flex; margin-bottom: 30px; background: var(--light-gray); border-radius: 10px; padding: 5px; }
+        .tab-btn { flex: 1; padding: 12px; text-align: center; font-weight: 600; color: var(--gray); cursor: pointer; border-radius: 8px; transition: 0.3s; }
+        .tab-btn.active { background: var(--white); color: var(--primary); box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+
+        .form-group { margin-bottom: 20px; text-align: left; }
+        .form-group label { display: block; font-size: 13px; font-weight: 500; color: var(--dark); margin-bottom: 8px; }
+        .form-input, .form-select { width: 100%; padding: 14px; border: 2px solid #eee; border-radius: 10px; font-size: 14px; outline: none; transition: 0.3s; background: #fff; }
+        .form-input:focus, .form-select:focus { border-color: var(--primary); }
+        
+        .btn-submit { width: 100%; padding: 15px; background: var(--primary); color: var(--white); border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.3s; margin-top: 10px; box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3); }
+        .btn-submit:hover { background: var(--primary-dark); transform: translateY(-2px); }
+
+        .form-section { display: none; animation: fadeIn 0.4s ease; }
+        .form-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Form Tambahan Khusus Petani */
+        #extra-petani-fields { display: none; background: #fff9e6; padding: 15px; border-radius: 10px; border: 1px dashed #f39c12; margin-top: 15px; margin-bottom: 20px; }
+        .alert-info { font-size: 12px; color: #d35400; margin-bottom: 10px; font-weight: 500; display: flex; gap: 5px; }
+    </style>
+</head>
+<body>
+
+    <div class="auth-container">
+        <div class="auth-header">
+            <h1>Digital Agri</h1>
+            <p>Platform Supply Chain Pertanian Modern</p>
+        </div>
+
+        <div class="tab-menu">
+            <div class="tab-btn active" id="btn-tab-login" onclick="switchTab('login')">Masuk</div>
+            <div class="tab-btn" id="btn-tab-register" onclick="switchTab('register')">Daftar Akun</div>
+        </div>
+
+        <div id="form-login" class="form-section active">
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="login-user" class="form-input" placeholder="Masukkan username Anda">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="login-pass" class="form-input" placeholder="Masukkan password">
+            </div>
+            <button class="btn-submit" onclick="prosesLogin()">Masuk ke Sistem</button>
+        </div>
+
+        <div id="form-register" class="form-section">
+            <div class="form-group">
+                <label>Username Baru</label>
+                <input type="text" id="reg-user" class="form-input" placeholder="Buat username tanpa spasi">
+            </div>
+            <div class="form-group">
+                <label>Buat Password</label>
+                <input type="password" id="reg-pass" class="form-input" placeholder="Minimal 6 karakter">
+            </div>
+            <div class="form-group">
+                <label>Daftar Sebagai</label>
+                <select id="reg-role" class="form-select" onchange="togglePetaniFields()">
+                    <option value="pembeli" selected>🛒 Supplier / Pembeli (Default)</option>
+                    <option value="petani">👨‍🌾 Petani / Pemilik Lahan</option>
+                </select>
+            </div>
+
+            <div id="extra-petani-fields">
+                <div class="alert-info">⚠️ Mitra Petani wajib mengisi data lahan.</div>
+                <div class="form-group">
+                    <label>Nama Lahan / Kelompok Tani</label>
+                    <input type="text" id="reg-lahan" class="form-input" placeholder="Contoh: Lahan Berkah Tani">
+                </div>
+                <div class="form-group">
+                    <label>Kabupaten / Kota Lokasi Lahan</label>
+                    <input type="text" id="reg-lokasi" class="form-input" placeholder="Contoh: Garut, Jawa Barat">
+                </div>
+            </div>
+
+            <button class="btn-submit" onclick="prosesRegister()">Buat Akun Sekarang</button>
+        </div>
+    </div>
+
+    <script>
+
+        if (!localStorage.getItem('usersDB')) {
+            const defaultUsers = [
+                { username: 'pembeli1', password: '123', role: 'pembeli' },
+                { username: 'petani1', password: '123', role: 'petani', lahan: 'Lahan Sejahtera', lokasi: 'Bandung' }
+            ];
+            localStorage.setItem('usersDB', JSON.stringify(defaultUsers));
+        }
+
+        // 2. Fungsi Animasi Berpindah Tab (Masuk <-> Daftar)
+        function switchTab(tab) {
+            document.getElementById('form-login').classList.remove('active');
+            document.getElementById('form-register').classList.remove('active');
+            document.getElementById('btn-tab-login').classList.remove('active');
+            document.getElementById('btn-tab-register').classList.remove('active');
+
+            if(tab === 'login') {
+                document.getElementById('form-login').classList.add('active');
+                document.getElementById('btn-tab-login').classList.add('active');
+            } else {
+                document.getElementById('form-register').classList.add('active');
+                document.getElementById('btn-tab-register').classList.add('active');
+            }
+        }
+
+        // 3. Fungsi Memunculkan Form Khusus Petani
+        function togglePetaniFields() {
+            const role = document.getElementById('reg-role').value;
+            const extraFields = document.getElementById('extra-petani-fields');
+            if (role === 'petani') {
+                extraFields.style.display = 'block'; // Tampilkan form lahan
+            } else {
+                extraFields.style.display = 'none'; // Sembunyikan jika pembeli
+            }
+        }
+
+        // 4. Logika Pendaftaran (Register)
+        function prosesRegister() {
+            const user = document.getElementById('reg-user').value.trim();
+            const pass = document.getElementById('reg-pass').value.trim();
+            const role = document.getElementById('reg-role').value;
+
+            if (user === '' || pass === '') {
+                alert("Username dan Password tidak boleh kosong!"); return;
+            }
+
+            // Ambil data users saat ini
+            let users = JSON.parse(localStorage.getItem('usersDB'));
+
+            // Cek apakah username sudah ada yang pakai
+            const isExist = users.find(u => u.username === user);
+            if (isExist) {
+                alert("Gagal! Username '" + user + "' sudah terdaftar. Gunakan yang lain."); return;
+            }
+
+            // Siapkan Data User Baru
+            let newUser = { username: user, password: pass, role: role };
+
+            // Jika dia petani, wajib isi data lahan
+            if (role === 'petani') {
+                const lahan = document.getElementById('reg-lahan').value.trim();
+                const lokasi = document.getElementById('reg-lokasi').value.trim();
+                
+                if (lahan === '' || lokasi === '') {
+                    alert("Karena Anda mendaftar sebagai Petani, Nama Lahan dan Lokasi WAJIB diisi!"); return;
+                }
+                newUser.lahan = lahan;
+                newUser.lokasi = lokasi;
+            }
+
+            // Simpan ke Database Mini
+            users.push(newUser);
+            localStorage.setItem('usersDB', JSON.stringify(users));
+
+            alert("Pendaftaran Berhasil!\nSilakan masuk (login) menggunakan akun yang baru dibuat.");
+            
+            // Pindahkan tampilan ke halaman Login dan bersihkan form
+            document.getElementById('reg-user').value = '';
+            document.getElementById('reg-pass').value = '';
+            switchTab('login');
+        }
+
+        // 5. Logika Autentikasi (Login)
+        function prosesLogin() {
+            const user = document.getElementById('login-user').value.trim();
+            const pass = document.getElementById('login-pass').value.trim();
+
+            if (user === '' || pass === '') {
+                alert("Username dan Password wajib diisi!"); return;
+            }
+
+            let users = JSON.parse(localStorage.getItem('usersDB'));
+            let accountMatch = users.find(u => u.username === user && u.password === pass);
+
+            if (accountMatch) {
+                // Berhasil Login! Simpan Sesi (Session)
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('username', accountMatch.username);
+                localStorage.setItem('userRole', accountMatch.role);
+
+                alert("Berhasil Masuk! Selamat datang, " + accountMatch.username);
+
+                // Arahkan sesuai jabatannya
+                if (accountMatch.role === 'petani') {
+                    window.location.href = 'dashboard.html';
+                } else {
+                    window.location.href = 'index.html';
+                }
+            } else {
+                alert("Username atau Password SALAH! Silakan periksa kembali.");
+            }
+        }
+    </script>
+</body>
+</html>

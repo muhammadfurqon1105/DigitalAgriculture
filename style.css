@@ -1,0 +1,252 @@
+:root {
+    --primary-color: #2e7d32;
+    --secondary-color: #f1f8e9;
+    --text-dark: #2c3e50;
+    --text-light: #7f8c8d;
+    --white: #ffffff;
+    --accent: #e67e22;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+    scroll-behavior: smooth;
+}
+
+body {
+    background-color: #f8f9fa;
+    color: var(--text-dark);
+}
+
+/* Navbar */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 50px;
+    background: var(--white);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+.logo { font-size: 24px; font-weight: 700; }
+.logo span { color: var(--primary-color); }
+.nav-links { list-style: none; display: flex; gap: 30px; }
+.nav-links a { text-decoration: none; color: var(--text-dark); font-weight: 500; transition: 0.3s; }
+.nav-links a:hover { color: var(--primary-color); }
+.btn-login { padding: 10px 20px; border: 1px solid var(--primary-color); background: transparent; color: var(--primary-color); border-radius: 5px; cursor: pointer; font-weight: 700; transition: 0.3s; }
+.btn-login:hover { background: var(--primary-color); color: var(--white); }
+
+/* Hero Section */
+.hero {
+    background: linear-gradient(rgba(46, 125, 50, 0.8), rgba(46, 125, 50, 0.8)), url('https://images.unsplash.com/photo-1625246333195-78d9c38ad449?q=80&w=1920&auto=format&fit=crop') center/cover;
+    height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: var(--white);
+}
+.hero-content h1 { font-size: 48px; margin-bottom: 15px; }
+.hero-content p { font-size: 18px; margin-bottom: 30px; max-width: 600px; margin-inline: auto; }
+.btn-primary { padding: 15px 30px; background: var(--accent); color: var(--white); border: none; border-radius: 5px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.3s;}
+.btn-primary:hover { background: #d35400; transform: scale(1.05); }
+
+/* Katalog Section */
+.katalog { padding: 60px 50px; }
+.katalog h2 { margin-bottom: 30px; font-size: 28px; }
+.grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+
+/* Card Design */
+.card { background: var(--white); border-radius: 12px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.08); transition: 0.3s; }
+.card:hover { transform: translateY(-5px); }
+.image-wrapper { position: relative; height: 200px; }
+.image-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+.badge { position: absolute; top: 15px; right: 15px; background: var(--accent); color: var(--white); padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+.badge.ready { background: #27ae60; }
+.card-content { padding: 20px; }
+.lokasi { color: var(--text-light); font-size: 14px; margin-top: 5px; margin-bottom: 15px; }
+
+/* Progress & Sensor */
+.progress-info { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 8px; font-weight: 500; }
+.progress-bar { width: 100%; height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden; margin-bottom: 15px; }
+.progress-fill { height: 100%; background: var(--accent); }
+.sensor-data { display: flex; gap: 15px; font-size: 13px; background: var(--secondary-color); padding: 10px; border-radius: 6px; margin-bottom: 20px; }
+.card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #eee; padding-top: 15px; }
+.harga { font-size: 18px; font-weight: 700; color: var(--primary-color); }
+.btn-booking { padding: 10px 15px; background: var(--primary-color); color: var(--white); border: none; border-radius: 5px; cursor: pointer; font-weight: 600; transition: 0.3s; }
+.btn-booking:hover { background: #1b5e20; }
+
+/* =========================================
+   MODAL CHECKOUT (POP-UP TRANSAKSI)
+========================================= */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: none; /* Disembunyikan secara default */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+.modal-box {
+    background: var(--white);
+    width: 400px;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    animation: slideDown 0.3s ease-out;
+}
+@keyframes slideDown {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+.modal-box h2 { font-size: 22px; color: var(--text-dark); margin-bottom: 5px; }
+.status-badge { display: inline-block; background: var(--secondary-color); color: var(--primary-color); padding: 5px 10px; border-radius: 5px; font-size: 12px; font-weight: bold; margin-bottom: 20px; }
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; font-size: 14px; color: var(--text-light); margin-bottom: 5px; }
+.form-group input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 16px; outline: none; }
+.form-group input:focus { border-color: var(--primary-color); }
+.total-box { background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px dashed #ccc; text-align: right; }
+.total-box h2 { color: var(--accent); margin-bottom: 0; }
+.modal-actions { display: flex; justify-content: space-between; margin-top: 20px; gap: 15px; }
+.btn-batal { flex: 1; padding: 12px; background: #e0e0e0; color: #333; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+.btn-batal:hover { background: #ccc; }
+.btn-bayar { flex: 1; padding: 12px; background: var(--primary-color); color: var(--white); border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+.btn-bayar:hover { background: #1b5e20; }
+/* =========================================
+   HALAMAN DETAIL PRODUK
+========================================= */
+.detail-section {
+    padding: 40px 50px;
+    max-width: 1200px;
+    margin: auto;
+}
+.breadcrumb {
+    font-size: 14px;
+    color: var(--text-light);
+    margin-bottom: 20px;
+}
+.breadcrumb a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+.detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    background: var(--white);
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+.detail-image img {
+    width: 100%;
+    border-radius: 8px;
+    object-fit: cover;
+    height: 400px;
+}
+.detail-badge {
+    position: static;
+    display: inline-block;
+    margin-bottom: 10px;
+}
+.detail-info h1 {
+    font-size: 32px;
+    color: var(--text-dark);
+    margin-bottom: 5px;
+}
+.harga-detail {
+    font-size: 36px;
+    color: var(--primary-color);
+    margin: 20px 0;
+}
+.harga-detail span {
+    font-size: 18px;
+    color: var(--text-light);
+    font-weight: 500;
+}
+.info-box {
+    display: flex;
+    gap: 20px;
+    background: var(--secondary-color);
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+}
+.info-item {
+    display: flex;
+    flex-direction: column;
+}
+.info-item span {
+    font-size: 12px;
+    color: var(--text-light);
+}
+.info-item strong {
+    font-size: 16px;
+    color: var(--text-dark);
+}
+.deskripsi h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+.deskripsi p {
+    line-height: 1.6;
+    color: #555;
+    margin-bottom: 25px;
+}
+.btn-full {
+    width: 100%;
+    padding: 15px;
+    font-size: 18px;
+}
+
+/* Timeline Monitoring */
+.monitoring-timeline {
+    margin-top: 40px;
+    background: var(--white);
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+.monitoring-timeline h3 {
+    margin-bottom: 20px;
+    font-size: 22px;
+}
+.timeline {
+    border-left: 3px solid var(--primary-color);
+    padding-left: 20px;
+    margin-left: 10px;
+}
+.timeline-item {
+    position: relative;
+    margin-bottom: 25px;
+}
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -28px;
+    top: 0;
+    width: 14px;
+    height: 14px;
+    background: var(--accent);
+    border-radius: 50%;
+}
+.timeline-item .tanggal {
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: 5px;
+}
+.timeline-item h4 {
+    margin-bottom: 5px;
+    color: var(--text-dark);
+}
+.timeline-item p {
+    font-size: 14px;
+    color: var(--text-light);
+    line-height: 1.5;
+}

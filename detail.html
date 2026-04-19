@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail Tanaman | Digital Agriculture</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo" style="cursor: pointer;" onclick="window.location.href='index.html'">Digital <span>Agriculture</span></div>
+        <ul class="nav-links">
+            <li><a href="index.html">Kembali ke Katalog</a></li>
+        </ul>
+    </nav>
+
+    <section class="detail-section">
+        <div class="breadcrumb">
+            <a href="index.html">Home</a> > <a href="index.html">Katalog</a> > <span id="bread-nama">Memuat...</span>
+        </div>
+
+        <div class="detail-grid">
+            <div class="detail-image">
+                <img id="detail-img" src="" alt="Gambar Tanaman">
+            </div>
+
+            <div class="detail-info">
+                <span class="badge detail-badge" id="detail-status">Memuat...</span>
+                <h1 id="detail-nama">Memuat Nama Tanaman...</h1>
+                <p class="lokasi" id="detail-lokasi">📍 Memuat lokasi...</p>
+                
+                <h2 class="harga-detail"><span id="detail-harga">Rp 0</span> <span>/ Kg</span></h2>
+
+                <div class="info-box">
+                    <div class="info-item">
+                        <span>Sisa Stok / Kapasitas</span>
+                        <strong id="detail-stok">0 Kg</strong>
+                    </div>
+                    <div class="info-item">
+                        <span>Estimasi Panen</span>
+                        <strong id="detail-panen">-</strong>
+                    </div>
+                    <div class="info-item">
+                        <span>Luas Lahan</span>
+                        <strong id="detail-lahan">-</strong>
+                    </div>
+                </div>
+
+                <div class="deskripsi">
+                    <h3>Deskripsi Proyek</h3>
+                    <p id="detail-deskripsi">Memuat deskripsi tanaman...</p>
+                </div>
+
+                <button class="btn-primary btn-full" onclick="alert('Membuka halaman pembayaran...')">Booking / Beli Sekarang</button>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // 1. Mengambil parameter 'id' dari URL (misal: ?id=kentang)
+        const urlParams = new URLSearchParams(window.location.search);
+        const produkId = urlParams.get('id');
+
+        // 2. Database mini di dalam JavaScript
+        const dataProduk = {
+            cabai: {
+                nama: "Cabai Merah Keriting Super",
+                gambar: "https://images.unsplash.com/photo-1592982537447-6f23340be7a5?q=80&w=800&auto=format&fit=crop",
+                status: "Masa Perawatan",
+                lokasi: "📍 Lahan Blok A, Garut, Jawa Barat | Petani: Bapak Ridwan",
+                harga: "Rp 35.000",
+                stok: "1.500 Kg",
+                panen: "12 Mei 2026",
+                lahan: "2 Hektar",
+                deskripsi: "Cabai merah keriting varietas unggul yang ditanam menggunakan metode semi-organik. Bebas dari pestisida kimia berbahaya. Cocok untuk kebutuhan industri saus dan restoran."
+            },
+            kentang: {
+                nama: "Kentang Granola Kualitas A",
+                gambar: "https://images.unsplash.com/photo-1518977676601-b53f82aba655?q=80&w=800&auto=format&fit=crop",
+                status: "Siap Panen",
+                lokasi: "📍 Lahan Blok C, Dieng, Jawa Tengah | Petani: Bapak Slamet",
+                harga: "Rp 15.000",
+                stok: "5.000 Kg",
+                panen: "Hari Ini",
+                lahan: "4 Hektar",
+                deskripsi: "Kentang varietas Granola berukuran besar, kulit mulus, dan tekstur padat. Sangat direkomendasikan untuk pembuatan french fries, keripik, maupun konsumsi sayur harian."
+            }
+        };
+
+        // 3. Menampilkan data sesuai dengan ID yang diklik
+        if (produkId && dataProduk[produkId]) {
+            const produk = dataProduk[produkId];
+            
+            document.getElementById('bread-nama').innerText = produk.nama;
+            document.getElementById('detail-img').src = produk.gambar;
+            document.getElementById('detail-status').innerText = produk.status;
+            
+            // Ubah warna badge status jika siap panen
+            if(produkId === 'kentang') {
+                document.getElementById('detail-status').style.background = "#27ae60";
+            }
+
+            document.getElementById('detail-nama').innerText = produk.nama;
+            document.getElementById('detail-lokasi').innerText = produk.lokasi;
+            document.getElementById('detail-harga').innerText = produk.harga;
+            document.getElementById('detail-stok').innerText = produk.stok;
+            document.getElementById('detail-panen').innerText = produk.panen;
+            document.getElementById('detail-lahan').innerText = produk.lahan;
+            document.getElementById('detail-deskripsi').innerText = produk.deskripsi;
+        } else {
+            // Jika ID tidak ditemukan (dibuka langsung tanpa diklik dari index)
+            document.getElementById('detail-nama').innerText = "Produk Tidak Ditemukan";
+        }
+    </script>
+</body>
+</html>
