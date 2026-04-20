@@ -45,13 +45,14 @@
         
         .btn-submit { width: 100%; padding: 15px; background: var(--primary); color: var(--white); border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.3s; margin-top: 10px; box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3); }
         .btn-submit:hover { background: var(--primary-dark); transform: translateY(-2px); }
+        .btn-submit:disabled { background: #bdc3c7; cursor: not-allowed; transform: none; box-shadow: none;}
 
         .form-section { display: none; animation: fadeIn 0.4s ease; }
         .form-section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Form Tambahan Khusus Petani */
-        #extra-petani-fields { display: none; background: #fff9e6; padding: 15px; border-radius: 10px; border: 1px dashed #f39c12; margin-top: 15px; margin-bottom: 20px; }
+        #extra-petani-fields, #extra-pembeli-fields { display: none; background: #fff9e6; padding: 15px; border-radius: 10px; border: 1px dashed #f39c12; margin-top: 15px; margin-bottom: 20px; }
+        #extra-pembeli-fields { background: #e8f8f5; border-color: var(--primary); }
         .alert-info { font-size: 12px; color: #d35400; margin-bottom: 10px; font-weight: 500; display: flex; gap: 5px; }
     </style>
 </head>
@@ -77,7 +78,7 @@
                 <label>Password</label>
                 <input type="password" id="login-pass" class="form-input" placeholder="Masukkan password">
             </div>
-            <button class="btn-submit" onclick="prosesLogin()">Masuk ke Sistem</button>
+            <button id="btn-login-submit" class="btn-submit" onclick="prosesLogin()">Masuk ke Sistem</button>
         </div>
 
         <div id="form-register" class="form-section">
@@ -91,10 +92,18 @@
             </div>
             <div class="form-group">
                 <label>Daftar Sebagai</label>
-                <select id="reg-role" class="form-select" onchange="togglePetaniFields()">
+                <select id="reg-role" class="form-select" onchange="toggleRoleFields()">
                     <option value="pembeli" selected>🛒 Supplier / Pembeli (Default)</option>
                     <option value="petani">👨‍🌾 Petani / Pemilik Lahan</option>
                 </select>
+            </div>
+
+            <div id="extra-pembeli-fields" style="display: block;">
+                <div class="alert-info" style="color:var(--primary-dark);">⚠️ Alamat pengiriman default Anda.</div>
+                <div class="form-group">
+                    <label>Alamat Lengkap Pengiriman</label>
+                    <textarea id="reg-alamat" class="form-input" rows="3" placeholder="Contoh: Jl. Merdeka No 1, Jakarta Barat"></textarea>
+                </div>
             </div>
 
             <div id="extra-petani-fields">
@@ -109,21 +118,14 @@
                 </div>
             </div>
 
-            <button class="btn-submit" onclick="prosesRegister()">Buat Akun Sekarang</button>
+            <button id="btn-reg-submit" class="btn-submit" onclick="prosesRegister()">Buat Akun Sekarang</button>
         </div>
     </div>
 
     <script>
+        const API_URL = 'http://localhost:5000/api';
 
-        if (!localStorage.getItem('usersDB')) {
-            const defaultUsers = [
-                { username: 'pembeli1', password: '123', role: 'pembeli' },
-                { username: 'petani1', password: '123', role: 'petani', lahan: 'Lahan Sejahtera', lokasi: 'Bandung' }
-            ];
-            localStorage.setItem('usersDB', JSON.stringify(defaultUsers));
-        }
-
-        // 2. Fungsi Animasi Berpindah Tab (Masuk <-> Daftar)
+        // 1. Fungsi Animasi Berpindah Tab (Masuk <-> Daftar)
         function switchTab(tab) {
             document.getElementById('form-login').classList.remove('active');
             document.getElementById('form-register').classList.remove('active');
@@ -139,92 +141,112 @@
             }
         }
 
-        // 3. Fungsi Memunculkan Form Khusus Petani
-        function togglePetaniFields() {
+        // 2. Fungsi Memunculkan Form Khusus Berdasarkan Role
+        function toggleRoleFields() {
             const role = document.getElementById('reg-role').value;
-            const extraFields = document.getElementById('extra-petani-fields');
+            const petaniFields = document.getElementById('extra-petani-fields');
+            const pembeliFields = document.getElementById('extra-pembeli-fields');
+            
             if (role === 'petani') {
-                extraFields.style.display = 'block'; // Tampilkan form lahan
+                petaniFields.style.display = 'block'; 
+                pembeliFields.style.display = 'none';
             } else {
-                extraFields.style.display = 'none'; // Sembunyikan jika pembeli
+                petaniFields.style.display = 'none'; 
+                pembeliFields.style.display = 'block';
             }
         }
 
-        // 4. Logika Pendaftaran (Register)
-        function prosesRegister() {
+        // 3. Logika Pendaftaran (Register) tersambung ke MySQL
+        async function prosesRegister() {
             const user = document.getElementById('reg-user').value.trim();
             const pass = document.getElementById('reg-pass').value.trim();
             const role = document.getElementById('reg-role').value;
+            let alamatFinal = '';
 
             if (user === '' || pass === '') {
                 alert("Username dan Password tidak boleh kosong!"); return;
             }
 
-            // Ambil data users saat ini
-            let users = JSON.parse(localStorage.getItem('usersDB'));
-
-            // Cek apakah username sudah ada yang pakai
-            const isExist = users.find(u => u.username === user);
-            if (isExist) {
-                alert("Gagal! Username '" + user + "' sudah terdaftar. Gunakan yang lain."); return;
+            if (role === 'pembeli') {
+                alamatFinal = document.getElementById('reg-alamat').value.trim();
+                if(alamatFinal === '') return alert("Alamat pengiriman wajib diisi untuk pembeli!");
             }
 
-            // Siapkan Data User Baru
-            let newUser = { username: user, password: pass, role: role };
-
-            // Jika dia petani, wajib isi data lahan
             if (role === 'petani') {
                 const lahan = document.getElementById('reg-lahan').value.trim();
                 const lokasi = document.getElementById('reg-lokasi').value.trim();
-                
-                if (lahan === '' || lokasi === '') {
-                    alert("Karena Anda mendaftar sebagai Petani, Nama Lahan dan Lokasi WAJIB diisi!"); return;
-                }
-                newUser.lahan = lahan;
-                newUser.lokasi = lokasi;
+                if (lahan === '' || lokasi === '') return alert("Nama Lahan dan Lokasi WAJIB diisi!");
+                alamatFinal = lahan + ', ' + lokasi; // Gabungkan lahan dan lokasi untuk petani
             }
 
-            // Simpan ke Database Mini
-            users.push(newUser);
-            localStorage.setItem('usersDB', JSON.stringify(users));
+            const btn = document.getElementById('btn-reg-submit');
+            btn.innerText = "Mendaftarkan ke MySQL..."; btn.disabled = true;
 
-            alert("Pendaftaran Berhasil!\nSilakan masuk (login) menggunakan akun yang baru dibuat.");
+            try {
+                // Endpoint baru untuk Register (akan kita tangani lewat API di server.js)
+                const res = await fetch(`${API_URL}/register`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: user, password: pass, role: role, alamat: alamatFinal })
+                });
+                const data = await res.json();
+
+                if(data.success) {
+                    alert("Pendaftaran Berhasil!\nSilakan masuk menggunakan akun yang baru dibuat.");
+                    document.getElementById('reg-user').value = '';
+                    document.getElementById('reg-pass').value = '';
+                    switchTab('login');
+                } else {
+                    alert("Gagal: " + data.msg);
+                }
+            } catch(e) { 
+                alert("Gagal terhubung ke Database! Pastikan Node.js menyala."); 
+            }
             
-            // Pindahkan tampilan ke halaman Login dan bersihkan form
-            document.getElementById('reg-user').value = '';
-            document.getElementById('reg-pass').value = '';
-            switchTab('login');
+            btn.innerText = "Buat Akun Sekarang"; btn.disabled = false;
         }
 
-        // 5. Logika Autentikasi (Login)
-        function prosesLogin() {
+        // 4. Logika Autentikasi (Login) tersambung ke MySQL
+        async function prosesLogin() {
             const user = document.getElementById('login-user').value.trim();
             const pass = document.getElementById('login-pass').value.trim();
+            const btn = document.getElementById('btn-login-submit');
 
             if (user === '' || pass === '') {
                 alert("Username dan Password wajib diisi!"); return;
             }
 
-            let users = JSON.parse(localStorage.getItem('usersDB'));
-            let accountMatch = users.find(u => u.username === user && u.password === pass);
+            btn.innerText = "Memeriksa Database..."; btn.disabled = true;
 
-            if (accountMatch) {
-                // Berhasil Login! Simpan Sesi (Session)
-                localStorage.setItem('isLoggedIn', 'true');
-                localStorage.setItem('username', accountMatch.username);
-                localStorage.setItem('userRole', accountMatch.role);
+            try {
+                const res = await fetch(`${API_URL}/login`, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ username: user, password: pass })
+                });
+                const data = await res.json();
 
-                alert("Berhasil Masuk! Selamat datang, " + accountMatch.username);
+                if(data.success) {
+                    // Berhasil Login! Simpan Sesi (Session) & Alamat
+                    localStorage.setItem('isLoggedIn', 'true');
+                    localStorage.setItem('username', data.user.username);
+                    localStorage.setItem('userRole', data.user.role);
+                    localStorage.setItem('userAlamat', data.user.alamat || ''); 
 
-                // Arahkan sesuai jabatannya
-                if (accountMatch.role === 'petani') {
-                    window.location.href = 'dashboard.html';
+                    alert("Berhasil Masuk! Selamat datang, " + data.user.username);
+
+                    // Arahkan sesuai jabatannya
+                    if (data.user.role === 'petani') {
+                        window.location.href = 'dashboard.html';
+                    } else {
+                        window.location.href = 'index.html';
+                    }
                 } else {
-                    window.location.href = 'index.html';
+                    alert("Username atau Password SALAH! Silakan periksa kembali.");
                 }
-            } else {
-                alert("Username atau Password SALAH! Silakan periksa kembali.");
+            } catch(e) { 
+                alert("Server Node.js belum menyala atau Database mati!"); 
             }
+
+            btn.innerText = "Masuk ke Sistem"; btn.disabled = false;
         }
     </script>
 </body>
