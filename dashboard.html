@@ -185,15 +185,15 @@
                 <div class="panel">
                     <div class="panel-header">
                         <div>
-                            <h3>Daftar Order Pembeli</h3>
-                            <p style="font-size: 13px; color: var(--gray); margin-top: 5px;">Pesanan akan otomatis mengurangi sisa stok lahan Anda secara Live.</p>
+                            <h3>Daftar Order Pembeli & Pelacakan</h3>
+                            <p style="font-size: 13px; color: var(--gray); margin-top: 5px;">Perbarui status kiriman di sini agar pembeli bisa melacak pesanan mereka secara Live.</p>
                         </div>
                     </div>
                     <table>
                         <thead>
                             <tr>
                                 <th>ID Invoice & Tanggal</th>
-                                <th>Nama Pembeli</th>
+                                <th>Pembeli & Alamat Kirim</th>
                                 <th>Rincian Produk</th>
                                 <th>Total Pembayaran</th>
                                 <th>Status Order</th>
@@ -306,7 +306,6 @@
                 });
                 
                 setTimeout(() => {
-                    alert("Berhasil! Database MySQL telah diupdate.");
                     btnElement.innerText = "Simpan Perubahan";
                     btnElement.style.background = "var(--primary)";
                     fetchDataDashboard(); // Refresh
@@ -370,30 +369,49 @@
                 html = '<tr><td colspan="6" style="text-align:center; padding: 40px; color:var(--gray);">Database Order Kosong. Belum ada pembeli.</td></tr>'; 
             } else {
                 orders.forEach(o => {
-                    let isNew = o.status === 'Menunggu Konfirmasi';
-                    let actionBtn = isNew ? `<button class="btn-action success" onclick="terimaOrderSQL('${o.id}')">Konfirmasi & Kirim</button>` 
-                                          : `<button class="btn-action" disabled>Pesanan Selesai</button>`;
+                    // FITUR BARU: Update Tombol Action & Status Pelacakan
+                    let bgStatus = 'gray'; let actionBtn = '';
+                    
+                    if (o.status === 'Menunggu Konfirmasi') {
+                        bgStatus = 'var(--accent)'; 
+                        actionBtn = `<button class="btn-action success" onclick="updateTrackingSQL('${o.id}', 'Diproses')">Terima & Proses</button>`;
+                    } else if (o.status === 'Diproses') {
+                        bgStatus = '#3498db'; 
+                        actionBtn = `<button class="btn-action" style="background:#3498db;" onclick="updateTrackingSQL('${o.id}', 'Sedang Dikirim')">Kirim Ekspedisi</button>`;
+                    } else if (o.status === 'Sedang Dikirim') {
+                        bgStatus = '#9b59b6'; 
+                        actionBtn = `<button class="btn-action" style="background:#27ae60;" onclick="updateTrackingSQL('${o.id}', 'Selesai')">Tandai Selesai</button>`;
+                    } else {
+                        bgStatus = 'var(--primary)'; 
+                        actionBtn = `<button class="btn-action" disabled style="background:#bdc3c7; color:#fff;">Transaksi Selesai</button>`;
+                    }
+
+                    // FITUR BARU: Menampilkan Box Alamat
                     html += `
                     <tr>
-                        <td><b style="color:var(--dark);">${o.id}</b><br><small style="color:var(--gray)">${o.tanggal}</small></td>
-                        <td><span style="background:var(--bg-color); padding:5px 10px; border-radius:6px; font-weight:600;">${o.pembeli.toUpperCase()}</span></td>
-                        <td><b style="color:var(--primary);">${o.produk}</b><br><small style="font-weight:600;">Jumlah: ${o.qty} Kg</small></td>
-                        <td style="font-weight:800; font-size:16px;">Rp ${parseInt(o.total).toLocaleString('id-ID')}</td>
-                        <td><span class="badge ${isNew ? 'badge-warning' : 'badge-info'}">${o.status}</span></td>
-                        <td>${actionBtn}</td>
+                        <td style="vertical-align: top;"><b style="color:var(--dark);">${o.id}</b><br><small style="color:var(--gray)">${o.tanggal}</small></td>
+                        <td style="vertical-align: top;">
+                            <span style="background:var(--bg-color); padding:5px 10px; border-radius:6px; font-weight:600;">${o.pembeli.toUpperCase()}</span><br>
+                            <div style="background:#f4f6f9; padding:10px; border-radius:8px; font-size:12px; margin-top:8px; border:1px solid #ddd; line-height:1.4;">
+                                <span style="color:var(--primary); font-weight:bold;">📍 Alamat Kirim:</span><br>${o.alamat}
+                            </div>
+                        </td>
+                        <td style="vertical-align: top;"><b style="color:var(--primary);">${o.produk}</b><br><small style="font-weight:600;">Jumlah: ${o.qty} Kg</small></td>
+                        <td style="font-weight:800; font-size:16px; vertical-align: top;">Rp ${parseInt(o.total).toLocaleString('id-ID')}</td>
+                        <td style="vertical-align: top;"><span class="badge" style="background:${bgStatus}; color:white; padding:6px 12px; border-radius:20px; font-size:11px; letter-spacing:0.5px;">${o.status}</span></td>
+                        <td style="vertical-align: top;">${actionBtn}</td>
                     </tr>`;
                 });
             }
             document.getElementById('tabel-pesanan').innerHTML = html;
         }
 
-        // UPDATE STATUS PESANAN
-        async function terimaOrderSQL(id) {
+        // FITUR BARU: Fungsi Eksekusi Tracking ke MySQL
+        async function updateTrackingSQL(id, statusBaru) {
             await fetch(`${API_URL}/orders/${id}`, {
                 method: 'PUT', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status: 'Diproses & Disiapkan' })
+                body: JSON.stringify({ status: statusBaru })
             });
-            alert("Berhasil! Status pesanan diupdate ke Proses Pengiriman.");
             fetchDataPesanan(); fetchDataDashboard();
         }
 
