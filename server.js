@@ -9,54 +9,70 @@ app.use(express.json());
 const db = mysql.createConnection({ host: 'localhost', user: 'root', password: '' });
 
 db.connect((err) => {
-    if (err) {
-        console.error('❌ Koneksi database gagal:', err);
-        return;
-    }
-    console.log('⏳ Menyiapkan Database dan Tabel secara otomatis...');
+    if (err) return console.error('❌ Koneksi database gagal:', err);
+    console.log('⏳ Menyiapkan Database dan Tabel...');
     
-    db.query('CREATE DATABASE IF NOT EXISTS db_digital_agri', (err) => {
-        if(err) console.error(err);
-        
-        db.query('USE db_digital_agri', (err) => {
-            if(err) console.error(err);
+    db.query('CREATE DATABASE IF NOT EXISTS db_digital_agri', () => {
+        db.query('USE db_digital_agri', () => {
             
+            // 1. Tabel Produk
             db.query(`CREATE TABLE IF NOT EXISTS products (
                 id VARCHAR(20) PRIMARY KEY, nama VARCHAR(100), kategori VARCHAR(50), lokasi VARCHAR(100), 
                 harga INT, stok INT, status VARCHAR(50), progress INT, tanggal VARCHAR(50), 
                 metode VARCHAR(50), deskripsi TEXT, img VARCHAR(255)
-            )`, (err) => { if(err) console.error(err); });
-          
+            )`);
+            
+            // 2. Tabel Order (Dengan Alamat)
             db.query(`CREATE TABLE IF NOT EXISTS orders (
-                id VARCHAR(20) PRIMARY KEY, pembeli VARCHAR(50), produk VARCHAR(100), 
+                id VARCHAR(20) PRIMARY KEY, pembeli VARCHAR(50), produk VARCHAR(100), alamat TEXT, 
                 qty INT, total INT, status VARCHAR(50), tanggal VARCHAR(50)
-            )`, (err) => { if(err) console.error(err); });
+            )`);
 
-            db.query('SELECT COUNT(*) AS count FROM products', (err, results) => {
-                if (err) return console.error(err);
-                
-                if (results[0].count === 0) {
-                    const insertSQL = `INSERT INTO products (id, nama, kategori, lokasi, harga, stok, status, progress, tanggal, metode, deskripsi, img) VALUES 
-                    ('p1', 'Cabai Merah Keriting', 'Bumbu', '📍 Blok A, Garut', 35000, 1500, 'Masa Perawatan', 65, 'Estimasi: 12 Mei', 'Konvensional', 'Cabai varietas unggul pedas tinggi. Cocok untuk industri saus.', 'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?q=80&w=600'),
-                    ('p2', 'Kentang Granola Grade A', 'Sayuran', '📍 Blok C, Dieng', 15000, 5000, 'Siap Panen', 100, 'Siap Kirim Hari Ini', 'Semi-Organik', 'Kentang ukuran besar, kulit mulus. Direkomendasikan untuk french fries.', 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?q=80&w=600'),
-                    ('p3', 'Tomat Cherry Organik', 'Sayuran', '📍 Green House, Lembang', 25000, 300, 'Masa Perawatan', 40, 'Estimasi: 20 Juni', 'Hidroponik', 'Tomat cherry manis segar tanpa pestisida kimia. Standar restoran premium.', 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?q=80&w=600'),
-                    ('p4', 'Bawang Merah Bima', 'Bumbu', '📍 Lahan Tani, Brebes', 28000, 2000, 'Siap Panen', 100, 'Siap Kirim Hari Ini', 'Konvensional', 'Bawang merah kering siap simpan. Aroma sangat tajam khas Brebes.', 'https://images.unsplash.com/photo-1615486171448-4fd1bb2b38ed?q=80&w=600')`;
-                    
-                    db.query(insertSQL, (err) => {
-                        if(err) console.error(err);
-                        else console.log('✅ Produk awal berhasil diisi otomatis!');
-                    });
-                }
-                console.log('✅ Sistem Backend dan MySQL siap digunakan!');
+            // 3. Tabel Users (Untuk menyimpan Akun & Alamat Permanen)
+            db.query(`CREATE TABLE IF NOT EXISTS users (
+                username VARCHAR(50) PRIMARY KEY, password VARCHAR(50), role VARCHAR(20), alamat TEXT
+            )`, () => {
+                // Akun Dummy untuk Testing
+                db.query("INSERT IGNORE INTO users VALUES ('furqon', '123', 'pembeli', 'Jl. Tanjung Duren Barat, Jakarta Barat')");
+                db.query("INSERT IGNORE INTO users VALUES ('petani1', '123', 'petani', '')");
             });
+
+            console.log('✅ Sistem Backend MySQL siap digunakan!');
         });
     });
 });
 
+// --- API LOGIN ---
+app.post('/api/login', (req, res) => {
+    const { username, password } = req.body;
+    db.query('SELECT * FROM users WHERE username = ? AND password = ?', [username, password], (err, results) => {
+        if (results.length > 0) {
+            res.json({ success: true, user: results[0] });
+        } else {
+            res.json({ success: false, msg: 'Username atau Password salah!' });
+        }
+    });
+});
+
+// --- API REGISTER (Pendaftaran Akun Baru) ---
+app.post('/api/register', (req, res) => {
+    const { username, password, role, alamat } = req.body;
+    db.query('SELECT * FROM users WHERE username = ?', [username], (err, results) => {
+        if(results.length > 0) {
+            return res.json({ success: false, msg: 'Username sudah digunakan, pilih yang lain!' });
+        }
+        db.query('INSERT INTO users (username, password, role, alamat) VALUES (?, ?, ?, ?)', 
+        [username, password, role, alamat], (err) => {
+            if(err) return res.status(500).json({ success: false, msg: 'Gagal mendaftar.' });
+            res.json({ success: true, msg: 'Akun berhasil dibuat.' });
+        });
+    });
+});
+
+// --- API PRODUK ---
 app.get('/api/products', (req, res) => {
-    db.query('SELECT * FROM products', (err, results) => {
-        if(err) return res.status(500).json(err);
-        res.json(results);
+    db.query('SELECT * FROM products', (err, r) => {
+        res.json(r);
     });
 });
 
@@ -69,10 +85,10 @@ app.post('/api/products', (req, res) => {
 });
 
 app.put('/api/products/:id', (req, res) => {
-    const { harga, stok, status, progress, tanggal } = req.body;
-    db.query('UPDATE products SET harga=?, stok=?, status=?, progress=?, tanggal=? WHERE id=?', [harga, stok, status, progress, tanggal, req.params.id], (err) => {
+    const p = req.body;
+    db.query('UPDATE products SET harga=?, stok=?, status=?, progress=?, tanggal=? WHERE id=?', [p.harga, p.stok, p.status, p.progress, p.tanggal, req.params.id], (err) => {
         if(err) return res.status(500).json(err);
-        res.json({msg: 'Lahan diupdate'});
+        res.json({msg: 'ok'});
     });
 });
 
@@ -83,21 +99,26 @@ app.delete('/api/products/:id', (req, res) => {
     });
 });
 
+// --- API ORDERS & TRACKING ---
 app.get('/api/orders', (req, res) => {
-    db.query('SELECT * FROM orders ORDER BY id DESC', (err, results) => {
-        if(err) return res.status(500).json(err);
-        res.json(results);
+    db.query('SELECT * FROM orders ORDER BY id DESC', (err, r) => {
+        res.json(r);
+    });
+});
+
+app.get('/api/orders/user/:pembeli', (req, res) => {
+    db.query('SELECT * FROM orders WHERE pembeli = ? ORDER BY id DESC', [req.params.pembeli], (err, r) => {
+        res.json(r);
     });
 });
 
 app.post('/api/orders', (req, res) => {
-    const { id, pembeli, produk, qty, total, status, tanggal, id_produk } = req.body;
-    db.query('UPDATE products SET stok = stok - ? WHERE id = ?', [qty, id_produk], (err) => {
+    const o = req.body;
+    db.query('UPDATE products SET stok = stok - ? WHERE id = ?', [o.qty, o.id_produk], (err) => {
         if(err) return res.status(500).json(err);
-        
-        db.query('INSERT INTO orders VALUES (?,?,?,?,?,?,?)', [id, pembeli, produk, qty, total, status, tanggal], (err) => {
+        db.query('INSERT INTO orders VALUES (?,?,?,?,?,?,?,?)', [o.id, o.pembeli, o.produk, o.alamat, o.qty, o.total, o.status, o.tanggal], (err) => {
             if(err) return res.status(500).json(err);
-            res.json({msg: 'Pesanan Dibuat'});
+            res.json({msg: 'ok'});
         });
     });
 });
@@ -105,7 +126,7 @@ app.post('/api/orders', (req, res) => {
 app.put('/api/orders/:id', (req, res) => {
     db.query('UPDATE orders SET status=? WHERE id=?', [req.body.status, req.params.id], (err) => {
         if(err) return res.status(500).json(err);
-        res.json({msg: 'Order diupdate'});
+        res.json({msg: 'ok'});
     });
 });
 
