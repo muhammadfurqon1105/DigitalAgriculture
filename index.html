@@ -80,7 +80,7 @@
         .modal-overlay.active .modal-box { transform: translateY(0); }
         .btn-close { position: absolute; top: 20px; right: 20px; background: #eee; border: none; width: 35px; height: 35px; border-radius: 50%; font-size: 18px; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.2s;}
         .btn-close:hover { background: var(--danger); color: white; }
-        .form-input { width: 100%; padding: 15px; border: 2px solid #eee; border-radius: 10px; margin-top: 8px; font-size: 18px; outline: none; font-weight: bold; }
+        .form-input { width: 100%; padding: 15px; border: 2px solid #eee; border-radius: 10px; margin-top: 8px; font-size: 18px; outline: none; font-weight: bold; font-family: inherit;}
 
         /* FOOTER */
         footer { background: var(--dark); color: white; padding: 60px 5% 30px; text-align: center; }
@@ -96,6 +96,7 @@
         <ul class="nav-links" id="nav-menu">
             <li><a href="#hero">Beranda</a></li>
             <li><a href="#katalog-section">Pasar Tani</a></li>
+            <li id="menu-tracking" style="display: none;"><a href="#" onclick="bukaTracking()" style="color:var(--accent);">📦 Pesanan Saya</a></li>
         </ul>
         <div id="auth-section">
             <button class="btn-login" onclick="window.location.href='login.html'">Masuk / Daftar</button>
@@ -168,12 +169,39 @@
                 <input type="number" id="co-jumlah" class="form-input" value="1" min="1" oninput="hitungTotal()">
             </div>
 
+            <div style="margin-bottom: 20px;">
+                <label style="font-size: 13px; font-weight: 600; color: var(--gray);">Alamat Pengiriman Lengkap</label>
+                <textarea id="co-alamat" class="form-input" rows="3" style="font-size: 14px; font-weight: normal;" placeholder="Contoh: Jl. Merdeka No. 10..."></textarea>
+            </div>
+
             <div style="background: var(--light-gray); padding: 20px; border-radius: 12px; text-align: right; margin-bottom: 30px;">
                 <small style="color: var(--gray); font-weight: 600;">Total Pembayaran</small>
                 <h2 id="co-total" style="font-size: 32px; color: var(--dark); margin-top: 5px;">Rp 0</h2>
             </div>
 
             <button id="btn-bayar-final" class="btn-login" style="width: 100%; padding: 16px; font-size: 16px;" onclick="prosesPembayaran()">Konfirmasi & Bayar</button>
+        </div>
+    </div>
+
+    <div id="modal-tracking" class="modal-overlay">
+        <div class="modal-box" style="max-width: 800px; max-height: 90vh; overflow-y: auto;">
+            <button class="btn-close" onclick="tutupModal('modal-tracking')">×</button>
+            <h2 style="margin-bottom: 5px;">Riwayat & Pelacakan Pesanan</h2>
+            <p style="color: var(--gray); font-size: 13px; margin-bottom: 20px;">Pantau status pengiriman komoditas Anda secara real-time.</p>
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 13px;">
+                    <thead>
+                        <tr>
+                            <th style="padding: 12px; border-bottom: 1px solid #eee; text-align: left; background: var(--light-gray);">No. Invoice</th>
+                            <th style="padding: 12px; border-bottom: 1px solid #eee; text-align: left; background: var(--light-gray);">Produk (Qty)</th>
+                            <th style="padding: 12px; border-bottom: 1px solid #eee; text-align: left; background: var(--light-gray);">Total</th>
+                            <th style="padding: 12px; border-bottom: 1px solid #eee; text-align: left; background: var(--light-gray);">Alamat Kirim</th>
+                            <th style="padding: 12px; border-bottom: 1px solid #eee; text-align: left; background: var(--light-gray);">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabel-tracking"></tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -201,6 +229,9 @@
             `;
             if(userRole === 'petani') {
                 document.getElementById('nav-menu').innerHTML += `<li><a href="dashboard.html" style="color: var(--primary); font-weight:700;">Dashboard Petani</a></li>`;
+            }
+            if(userRole === 'pembeli') {
+                document.getElementById('menu-tracking').style.display = 'block';
             }
         }
         function logout() { localStorage.clear(); window.location.reload(); }
@@ -262,7 +293,6 @@
 
         fetchProducts();
 
-        // FILTER & SEARCH LOGIC
         function filterKategori(kategori, element) {
             document.querySelectorAll('.filter-tag').forEach(el => el.classList.remove('active'));
             element.classList.add('active');
@@ -271,7 +301,6 @@
         }
         function cariProduk() { renderKatalog(document.getElementById('input-cari').value); }
 
-        // MODAL LOGIC
         let selectedProduct = null;
         function tutupModal(idModal) { document.getElementById(idModal).classList.remove('active'); }
 
@@ -306,6 +335,11 @@
             document.getElementById('co-maxstok').innerText = selectedProduct.stok;
             document.getElementById('co-jumlah').value = 1;
             document.getElementById('co-jumlah').max = selectedProduct.stok;
+            
+            // FITUR BARU: Ambil Alamat Dari Profil
+            const savedAlamat = localStorage.getItem('userAlamat');
+            document.getElementById('co-alamat').value = savedAlamat || ''; 
+
             hitungTotal();
             document.getElementById('modal-checkout').classList.add('active');
         }
@@ -316,10 +350,12 @@
             document.getElementById('co-total').innerText = 'Rp ' + (jml * selectedProduct.harga).toLocaleString('id-ID');
         }
 
-        // KIRIM PESANAN KE MYSQL
         async function prosesPembayaran() {
             let jml = parseInt(document.getElementById('co-jumlah').value);
+            let alamat = document.getElementById('co-alamat').value;
+            
             if(jml <= 0 || isNaN(jml)) return alert("Isi jumlah pesanan dengan benar!");
+            if(!alamat.trim()) return alert("ALAMAT PENGIRIMAN WAJIB DIISI!");
 
             let btn = document.getElementById('btn-bayar-final');
             btn.innerText = "Mengamankan Stok di Database..."; btn.style.background = "var(--accent)"; btn.disabled = true;
@@ -328,6 +364,7 @@
                 id: 'INV-' + Math.floor(Math.random() * 90000 + 10000),
                 pembeli: username,
                 produk: selectedProduct.nama,
+                alamat: alamat,
                 qty: jml,
                 total: jml * selectedProduct.harga,
                 status: 'Menunggu Konfirmasi',
@@ -345,11 +382,41 @@
                     alert(`✅ TRANSAKSI SUKSES!\n\nInvoice: ${orderData.id}\nTagihan: Rp ${orderData.total.toLocaleString('id-ID')}\n\nStok lahan telah dikurangi dan pesanan dikirim ke Dashboard Petani.`);
                     tutupModal('modal-checkout');
                     btn.innerText = "Konfirmasi & Bayar"; btn.style.background = "var(--primary)"; btn.disabled = false;
-                    fetchProducts(); // Refresh layar agar stok live
+                    fetchProducts(); 
                 }, 1000);
             } catch (error) {
                 alert("Error! Pastikan Server Node.js (Backend) Menyala.");
                 btn.innerText = "Konfirmasi & Bayar"; btn.style.background = "var(--primary)"; btn.disabled = false;
+            }
+        }
+
+        // FITUR BARU: Fungsi Buka Tracking
+        async function bukaTracking() {
+            document.getElementById('modal-tracking').classList.add('active');
+            document.getElementById('tabel-tracking').innerHTML = '<tr><td colspan="5" style="text-align:center;">Memuat riwayat pelacakan...</td></tr>';
+            
+            try {
+                const res = await fetch(`http://localhost:5000/api/orders/user/${username}`);
+                const myOrders = await res.json();
+                
+                let html = '';
+                if(myOrders.length === 0) {
+                    html = '<tr><td colspan="5" style="text-align:center; color:var(--gray);">Anda belum memiliki riwayat pesanan.</td></tr>';
+                } else {
+                    myOrders.forEach(o => {
+                        let color = o.status === 'Selesai' ? 'var(--primary)' : (o.status === 'Sedang Dikirim' ? '#3498db' : 'var(--accent)');
+                        html += `<tr>
+                            <td style="padding: 12px; border-bottom: 1px solid #eee;"><b style="color:var(--dark);">${o.id}</b><br><small style="color:var(--gray)">${o.tanggal}</small></td>
+                            <td style="padding: 12px; border-bottom: 1px solid #eee;">${o.produk}<br><b style="color:var(--primary);">${o.qty} Kg</b></td>
+                            <td style="padding: 12px; border-bottom: 1px solid #eee;"><b style="font-size:15px;">Rp ${o.total.toLocaleString('id-ID')}</b></td>
+                            <td style="padding: 12px; border-bottom: 1px solid #eee; font-size:12px; max-width: 200px;">${o.alamat}</td>
+                            <td style="padding: 12px; border-bottom: 1px solid #eee;"><span style="background:${color}; color:white; padding:6px 12px; border-radius:20px; font-size:11px; font-weight:bold; letter-spacing:0.5px;">${o.status}</span></td>
+                        </tr>`;
+                    });
+                }
+                document.getElementById('tabel-tracking').innerHTML = html;
+            } catch(e) { 
+                document.getElementById('tabel-tracking').innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--danger);">Gagal memuat data dari database.</td></tr>'; 
             }
         }
     </script>
