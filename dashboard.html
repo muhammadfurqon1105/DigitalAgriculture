@@ -14,7 +14,6 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
         body { background-color: var(--bg-color); display: flex; height: 100vh; overflow: hidden; color: var(--text-dark); }
         
-        /* SIDEBAR */
         .sidebar { width: 280px; background: var(--sidebar-bg); color: var(--white); display: flex; flex-direction: column; }
         .sidebar-header { padding: 30px 25px; border-bottom: 1px solid rgba(255,255,255,0.05); } 
         .sidebar-header h2 { font-size: 24px; color: var(--primary); font-weight: 700; letter-spacing: 1px;}
@@ -25,24 +24,19 @@
         .nav-menu li:hover:not(.active) { color: var(--white); background: rgba(255,255,255,0.05); }
         .sidebar-footer { padding: 20px; border-top: 1px solid rgba(255,255,255,0.05); } 
         .btn-logout { width: 100%; padding: 14px; background: var(--danger); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 15px; transition: 0.3s;}
-        .btn-logout:hover { background: #c0392b; }
         
-        /* MAIN CONTENT */
         .main-content { flex: 1; overflow-y: auto; display: flex; flex-direction: column; } 
         .topbar { background: var(--white); padding: 25px 40px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow); z-index: 10; } 
         .btn-katalog { padding: 12px 24px; background: var(--primary); color: var(--white); border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.3s;}
-        .btn-katalog:hover { background: var(--primary-dark); }
         .content-area { padding: 40px; } 
         .page-section { display: none; animation: fadeIn 0.4s ease; } .page-section.active { display: block; } 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* STATS WIDGETS */
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; margin-bottom: 40px; } 
         .stat-card { background: var(--white); padding: 30px; border-radius: var(--radius); box-shadow: var(--shadow); border-left: 6px solid var(--primary); position: relative; overflow: hidden;} 
         .stat-card h4 { color: var(--text-light); font-size: 15px; margin-bottom: 10px; font-weight: 500; } 
         .stat-card h2 { color: var(--text-dark); font-size: 32px; font-weight: 700; }
         
-        /* TABLES & PANELS */
         .panel { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); padding: 30px; margin-bottom: 35px; } 
         .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid #eee; padding-bottom: 20px; } 
         .panel-header h3 { font-size: 20px; color: var(--text-dark); }
@@ -50,17 +44,13 @@
         th, td { padding: 18px 15px; border-bottom: 1px solid #f1f2f6; vertical-align: middle; } 
         th { color: var(--text-light); font-size: 13px; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px;}
         
-        /* FORMS & BADGES */
-        .form-input, .form-select { padding: 12px 15px; border: 2px solid #eee; border-radius: 8px; outline: none; width: 100%; font-family: inherit; font-size: 14px; transition: 0.3s;} 
+        .form-input, .form-select { padding: 12px 15px; border: 2px solid #eee; border-radius: 8px; outline: none; width: 100%; font-family: inherit; font-size: 14px;} 
         .form-input:focus, .form-select:focus { border-color: var(--primary); }
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px; }
         .badge { padding: 8px 14px; border-radius: 30px; font-size: 12px; font-weight: 700; display: inline-block; } 
-        .badge-success { background: #e8f5e9; color: var(--primary-dark); } 
         .badge-warning { background: #fff3e0; color: #d35400; } 
-        .badge-info { background: #e3f2fd; color: #2980b9; }
         .btn-action { padding: 10px 18px; background: var(--accent); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: 0.3s;} 
-        .btn-action:hover { background: #e67e22; }
-        .btn-action.success { background: var(--primary); } .btn-action.success:hover { background: var(--primary-dark); }
+        .btn-action.success { background: var(--primary); }
         .btn-action:disabled { background: #bdc3c7; cursor: not-allowed; }
     </style>
 </head>
@@ -94,18 +84,9 @@
             
             <div id="page-dashboard" class="page-section active">
                 <div class="stats-grid">
-                    <div class="stat-card">
-                        <h4>Total Proyek Berjalan</h4>
-                        <h2 id="stat-proyek">Membaca Database...</h2>
-                    </div>
-                    <div class="stat-card" style="border-left-color: #3498db;">
-                        <h4>Kapasitas Panen Tersedia</h4>
-                        <h2 id="stat-stok">...</h2>
-                    </div>
-                    <div class="stat-card" style="border-left-color: #f39c12;">
-                        <h4>Total Penjualan Masuk</h4>
-                        <h2 id="stat-sales" style="color: #f39c12;">...</h2>
-                    </div>
+                    <div class="stat-card"><h4>Total Proyek Berjalan</h4><h2 id="stat-proyek">...</h2></div>
+                    <div class="stat-card" style="border-left-color: #3498db;"><h4>Kapasitas Panen Tersedia</h4><h2 id="stat-stok">...</h2></div>
+                    <div class="stat-card" style="border-left-color: #f39c12;"><h4>Total Penjualan Masuk</h4><h2 id="stat-sales" style="color: #f39c12;">...</h2></div>
                 </div>
 
                 <div class="panel">
@@ -114,52 +95,21 @@
                         <p style="font-size: 13px; color: var(--gray);">Perubahan harga & stok akan langsung sinkron dengan layar Pembeli.</p>
                     </div>
                     <table>
-                        <thead>
-                            <tr>
-                                <th>Detail Produk</th>
-                                <th>Harga (Rp)/Kg</th>
-                                <th>Sisa Stok (Kg)</th>
-                                <th>Status Lahan</th>
-                                <th>Aksi Server</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabel-dashboard-mini">
-                            <tr><td colspan="5" style="text-align:center;">Mengambil data dari MySQL...</td></tr>
-                        </tbody>
+                        <thead><tr><th>Detail Produk</th><th>Harga (Rp)/Kg</th><th>Sisa Stok (Kg)</th><th>Status Lahan</th><th>Aksi Server</th></tr></thead>
+                        <tbody id="tabel-dashboard-mini"><tr><td colspan="5" style="text-align:center;">Mengambil data...</td></tr></tbody>
                     </table>
                 </div>
             </div>
 
             <div id="page-lahan" class="page-section">
                 <div class="panel" style="background: #f4f6f9; border: 2px dashed #bdc3c7;">
-                    <div class="panel-header" style="border:none; margin-bottom: 0;">
-                        <h3>+ Buat Lahan / Tambah Komoditas Baru</h3>
-                    </div>
+                    <div class="panel-header" style="border:none; margin-bottom: 0;"><h3>+ Buat Lahan / Tambah Komoditas Baru</h3></div>
                     <div class="form-grid">
-                        <div>
-                            <label style="font-size: 13px; font-weight: 600; color: var(--text-dark);">Nama Tanaman</label>
-                            <input type="text" id="in-nama" class="form-input" placeholder="Misal: Bawang Merah Bima">
-                        </div>
-                        <div>
-                            <label style="font-size: 13px; font-weight: 600; color: var(--text-dark);">Kategori</label>
-                            <select id="in-kategori" class="form-select">
-                                <option value="Sayuran">Sayuran</option>
-                                <option value="Bumbu">Bumbu & Rempah</option>
-                                <option value="Buah">Buah-buahan</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label style="font-size: 13px; font-weight: 600; color: var(--text-dark);">Harga Jual per Kg (Rp)</label>
-                            <input type="number" id="in-harga" class="form-input" placeholder="Misal: 25000">
-                        </div>
-                        <div>
-                            <label style="font-size: 13px; font-weight: 600; color: var(--text-dark);">Target Kapasitas Panen (Kg)</label>
-                            <input type="number" id="in-stok" class="form-input" placeholder="Misal: 5000">
-                        </div>
-                        <div style="grid-column: 1 / -1;">
-                            <label style="font-size: 13px; font-weight: 600; color: var(--text-dark);">URL Gambar (Opsional)</label>
-                            <input type="text" id="in-img" class="form-input" placeholder="Link gambar beresolusi tinggi (Unsplash/Imgur)">
-                        </div>
+                        <div><label style="font-size: 13px; font-weight: 600;">Nama Tanaman</label><input type="text" id="in-nama" class="form-input"></div>
+                        <div><label style="font-size: 13px; font-weight: 600;">Kategori</label><select id="in-kategori" class="form-select"><option>Sayuran</option><option>Bumbu</option><option>Buah</option></select></div>
+                        <div><label style="font-size: 13px; font-weight: 600;">Harga Jual per Kg (Rp)</label><input type="number" id="in-harga" class="form-input"></div>
+                        <div><label style="font-size: 13px; font-weight: 600;">Target Kapasitas (Kg)</label><input type="number" id="in-stok" class="form-input"></div>
+                        <div style="grid-column: 1 / -1;"><label style="font-size: 13px; font-weight: 600;">URL Gambar (Opsional)</label><input type="text" id="in-img" class="form-input"></div>
                     </div>
                     <button class="btn-action success" style="padding: 14px 24px;" onclick="tambahProyekSQL()">Simpan ke Database MySQL</button>
                 </div>
@@ -167,15 +117,7 @@
                 <div class="panel">
                     <div class="panel-header"><h3>Daftar Seluruh Lahan (Hapus Data)</h3></div>
                     <table>
-                        <thead>
-                            <tr>
-                                <th>ID Lahan</th>
-                                <th>Nama Komoditas</th>
-                                <th>Lokasi Tanam</th>
-                                <th>Sisa Stok</th>
-                                <th>Aksi Fatal</th>
-                            </tr>
-                        </thead>
+                        <thead><tr><th>ID Lahan</th><th>Nama Komoditas</th><th>Lokasi Tanam</th><th>Sisa Stok</th><th>Aksi Fatal</th></tr></thead>
                         <tbody id="tabel-lahan-lengkap"></tbody>
                     </table>
                 </div>
@@ -184,22 +126,10 @@
             <div id="page-pesanan" class="page-section">
                 <div class="panel">
                     <div class="panel-header">
-                        <div>
-                            <h3>Daftar Order Pembeli & Pelacakan</h3>
-                            <p style="font-size: 13px; color: var(--gray); margin-top: 5px;">Perbarui status kiriman di sini agar pembeli bisa melacak pesanan mereka secara Live.</p>
-                        </div>
+                        <div><h3>Daftar Order Pembeli & Pelacakan</h3><p style="font-size: 13px; color: var(--gray); margin-top: 5px;">Tunggu konfirmasi dari pembeli setelah pesanan Sedang Dikirim.</p></div>
                     </div>
                     <table>
-                        <thead>
-                            <tr>
-                                <th>ID Invoice & Tanggal</th>
-                                <th>Pembeli & Alamat Kirim</th>
-                                <th>Rincian Produk</th>
-                                <th>Total Pembayaran</th>
-                                <th>Status Order</th>
-                                <th>Aksi Admin</th>
-                            </tr>
-                        </thead>
+                        <thead><tr><th>ID Invoice & Tanggal</th><th>Pembeli & Alamat Kirim</th><th>Rincian Produk</th><th>Total Pembayaran</th><th>Status Order</th><th>Aksi Admin</th></tr></thead>
                         <tbody id="tabel-pesanan"></tbody>
                     </table>
                 </div>
@@ -209,62 +139,34 @@
     </main>
 
     <script>
-        // --- 1. KEAMANAN & AUTENTIKASI ---
-        if (localStorage.getItem('userRole') !== 'petani') { 
-            alert('Akses Ilegal! Halaman khusus Petani.'); window.location.href = 'index.html'; 
-        } else { 
-            document.getElementById('nama-petani').innerText = localStorage.getItem('username').toUpperCase(); 
-        }
+        if (localStorage.getItem('userRole') !== 'petani') { alert('Akses Ilegal! Halaman khusus Petani.'); window.location.href = 'index.html'; } 
+        else { document.getElementById('nama-petani').innerText = localStorage.getItem('username').toUpperCase(); }
         function logout() { localStorage.clear(); window.location.href = 'index.html'; }
 
-        // --- 2. CONFIG API BACKEND NODE.JS ---
         const API_URL = 'http://localhost:5000/api';
 
-        // --- 3. NAVIGASI SPA ---
         function switchPage(pageId, element) {
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
-            element.classList.add('active');
-            document.getElementById('page-' + pageId).classList.add('active');
-            
-            // Reload data sesuai halaman yang dibuka
-            if(pageId === 'dashboard') fetchDataDashboard();
-            if(pageId === 'lahan') fetchDataLahan();
-            if(pageId === 'pesanan') fetchDataPesanan();
+            element.classList.add('active'); document.getElementById('page-' + pageId).classList.add('active');
+            if(pageId === 'dashboard') fetchDataDashboard(); if(pageId === 'lahan') fetchDataLahan(); if(pageId === 'pesanan') fetchDataPesanan();
         }
 
-        // --- 4. DATA DASHBOARD & UPDATE CEPAT ---
         async function fetchDataDashboard() {
             try {
                 const resProd = await fetch(`${API_URL}/products`); const products = await resProd.json();
                 const resOrd = await fetch(`${API_URL}/orders`); const orders = await resOrd.json();
 
                 let totalStok = 0; let totalSales = 0; let html = '';
-      
                 orders.forEach(o => { totalSales += parseInt(o.total); });
 
-                // Render Tabel Mini Dashboard
                 products.forEach(p => {
                     totalStok += parseInt(p.stok);
-                    html += `
-                    <tr>
-                        <td>
-                            <div style="display:flex; align-items:center; gap:15px;">
-                                <img src="${p.img}" onerror="this.src='https://via.placeholder.com/100'" style="width:50px; height:50px; border-radius:8px; object-fit:cover;">
-                                <div>
-                                    <b style="font-size:15px; color:var(--text-dark);">${p.nama}</b><br>
-                                    <small style="color:var(--gray)">${p.kategori}</small>
-                                </div>
-                            </div>
-                        </td>
+                    html += `<tr>
+                        <td><div style="display:flex; align-items:center; gap:15px;"><img src="${p.img}" onerror="this.src='https://via.placeholder.com/100'" style="width:50px; height:50px; border-radius:8px; object-fit:cover;"><div><b style="font-size:15px; color:var(--text-dark);">${p.nama}</b><br><small style="color:var(--gray)">${p.kategori}</small></div></div></td>
                         <td><input type="number" id="ds-harga-${p.id}" value="${p.harga}" class="form-input" style="width:130px; font-weight:bold;"></td>
                         <td><input type="number" id="ds-stok-${p.id}" value="${p.stok}" class="form-input" style="width:100px;"></td>
-                        <td>
-                            <select id="ds-status-${p.id}" class="form-select" style="width:160px;">
-                                <option value="Masa Perawatan" ${p.status==='Masa Perawatan'?'selected':''}>Masa Perawatan</option>
-                                <option value="Siap Panen" ${p.status==='Siap Panen'?'selected':''}>Siap Panen</option>
-                            </select>
-                        </td>
+                        <td><select id="ds-status-${p.id}" class="form-select" style="width:160px;"><option value="Masa Perawatan" ${p.status==='Masa Perawatan'?'selected':''}>Masa Perawatan</option><option value="Siap Panen" ${p.status==='Siap Panen'?'selected':''}>Siap Panen</option></select></td>
                         <td><button class="btn-action success" onclick="updateProyekSQL('${p.id}', this)">Simpan Perubahan</button></td>
                     </tr>`;
                 });
@@ -274,104 +176,51 @@
                 document.getElementById('stat-stok').innerText = totalStok.toLocaleString('id-ID') + " Kg";
                 document.getElementById('stat-sales').innerText = "Rp " + totalSales.toLocaleString('id-ID');
 
-                // Notifikasi Badge Pesanan
                 let pendingCount = orders.filter(o => o.status === 'Menunggu Konfirmasi').length;
-                document.querySelectorAll('.badge-order-count').forEach(badge => {
-                    badge.innerText = pendingCount + " Baru"; 
-                    badge.style.display = pendingCount > 0 ? 'inline-block' : 'none';
-                });
+                document.querySelectorAll('.badge-order-count').forEach(badge => { badge.innerText = pendingCount + " Baru"; badge.style.display = pendingCount > 0 ? 'inline-block' : 'none'; });
 
-            } catch (err) { 
-                console.error(err); 
-                document.getElementById('tabel-dashboard-mini').innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--danger); font-weight:bold;">Gagal Koneksi Database MySQL. Pastikan Node.js aktif!</td></tr>';
-            }
+            } catch (err) { document.getElementById('tabel-dashboard-mini').innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--danger); font-weight:bold;">Gagal Koneksi Database MySQL. Pastikan Node.js aktif!</td></tr>'; }
         }
 
-        // UPDATE (PUT REQUEST KE MYSQL)
         async function updateProyekSQL(id, btnElement) {
-            btnElement.innerText = "Menyimpan...";
-            btnElement.style.background = "var(--accent)";
-
-            const harga = document.getElementById(`ds-harga-${id}`).value;
-            const stok = document.getElementById(`ds-stok-${id}`).value;
-            const status = document.getElementById(`ds-status-${id}`).value;
-            
-            let progress = status === 'Siap Panen' ? 100 : 65;
-            let tanggal = status === 'Siap Panen' ? 'Tersedia Sekarang' : 'Masa Tumbuh';
-
+            btnElement.innerText = "Menyimpan..."; btnElement.style.background = "var(--accent)";
+            const harga = document.getElementById(`ds-harga-${id}`).value; const stok = document.getElementById(`ds-stok-${id}`).value; const status = document.getElementById(`ds-status-${id}`).value;
+            let progress = status === 'Siap Panen' ? 100 : 65; let tanggal = status === 'Siap Panen' ? 'Tersedia Sekarang' : 'Masa Tumbuh';
             try {
-                await fetch(`${API_URL}/products/${id}`, {
-                    method: 'PUT', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ harga, stok, status, progress, tanggal })
-                });
-                
-                setTimeout(() => {
-                    btnElement.innerText = "Simpan Perubahan";
-                    btnElement.style.background = "var(--primary)";
-                    fetchDataDashboard(); // Refresh
-                }, 800);
+                await fetch(`${API_URL}/products/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ harga, stok, status, progress, tanggal }) });
+                setTimeout(() => { btnElement.innerText = "Simpan Perubahan"; btnElement.style.background = "var(--primary)"; fetchDataDashboard(); }, 800);
             } catch (err) { alert("Gagal Update Data ke Server."); }
         }
 
-        // --- 5. DATA MANAJEMEN LAHAN FULL ---
         async function fetchDataLahan() {
             const res = await fetch(`${API_URL}/products`); const products = await res.json();
             let html = '';
-            products.forEach(p => {
-                html += `
-                <tr>
-                    <td style="color:var(--gray); font-size:13px;">${p.id}</td>
-                    <td><b style="color:var(--primary);">${p.nama}</b></td>
-                    <td>${p.lokasi}</td>
-                    <td><b>${p.stok}</b> Kg</td>
-                    <td><button class="btn-action" style="background:var(--danger)" onclick="hapusProyekSQL('${p.id}')">Hapus Lahan</button></td>
-                </tr>`;
-            });
+            products.forEach(p => { html += `<tr><td style="color:var(--gray); font-size:13px;">${p.id}</td><td><b style="color:var(--primary);">${p.nama}</b></td><td>${p.lokasi}</td><td><b>${p.stok}</b> Kg</td><td><button class="btn-action" style="background:var(--danger)" onclick="hapusProyekSQL('${p.id}')">Hapus Lahan</button></td></tr>`; });
             document.getElementById('tabel-lahan-lengkap').innerHTML = html;
         }
 
-        // CREATE (POST REQUEST KE MYSQL)
         async function tambahProyekSQL() {
             const nama = document.getElementById('in-nama').value; const harga = document.getElementById('in-harga').value;
             const stok = document.getElementById('in-stok').value; const kat = document.getElementById('in-kategori').value;
             const img = document.getElementById('in-img').value || 'https://images.unsplash.com/photo-1592982537447-6f23340be7a5?q=80&w=600';
-            
-            if(!nama || !harga || !stok) return alert("Peringatan: Lengkapi form Nama Komoditas, Harga, dan Stok!");
-
-            const newData = {
-                id: 'P-' + Math.floor(Math.random()*90000+10000), 
-                nama: nama, kategori: kat, lokasi: '📍 Ekstensi Lahan Baru',
-                harga: harga, stok: stok, status: 'Masa Perawatan', progress: 0, tanggal: 'Baru Tanam', metode: 'Konvensional', desc: 'Deskripsi standar.', img: img
-            };
-
+            if(!nama || !harga || !stok) return alert("Peringatan: Lengkapi form!");
+            const newData = { id: 'P-' + Math.floor(Math.random()*90000+10000), nama: nama, kategori: kat, lokasi: '📍 Ekstensi Lahan Baru', harga: harga, stok: stok, status: 'Masa Perawatan', progress: 0, tanggal: 'Baru Tanam', metode: 'Konvensional', desc: 'Deskripsi standar.', img: img };
             await fetch(`${API_URL}/products`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(newData) });
-            alert("Lahan baru sukses ditambahkan ke Database!");
-            
-            document.getElementById('in-nama').value=''; document.getElementById('in-harga').value=''; document.getElementById('in-stok').value=''; document.getElementById('in-img').value='';
-            fetchDataLahan(); fetchDataDashboard();
+            alert("Lahan baru sukses ditambahkan!"); fetchDataLahan(); fetchDataDashboard();
         }
 
-        // DELETE (DELETE REQUEST KE MYSQL)
         async function hapusProyekSQL(id) {
-            if(confirm("Tindakan fatal! Yakin hapus lahan ini secara permanen dari MySQL?")) {
-                await fetch(`${API_URL}/products/${id}`, { method: 'DELETE' });
-                alert("Data berhasil dihapus.");
-                fetchDataLahan(); fetchDataDashboard();
-            }
+            if(confirm("Yakin hapus lahan ini secara permanen dari MySQL?")) { await fetch(`${API_URL}/products/${id}`, { method: 'DELETE' }); fetchDataLahan(); fetchDataDashboard(); }
         }
 
-        // --- 6. DATA PESANAN / ORDER MASUK ---
         async function fetchDataPesanan() {
             const res = await fetch(`${API_URL}/orders`); const orders = await res.json();
             let html = '';
-            
-            if(orders.length === 0) { 
-                html = '<tr><td colspan="6" style="text-align:center; padding: 40px; color:var(--gray);">Database Order Kosong. Belum ada pembeli.</td></tr>'; 
-            } else {
+            if(orders.length === 0) { html = '<tr><td colspan="6" style="text-align:center; padding: 40px; color:var(--gray);">Database Order Kosong.</td></tr>'; } else {
                 orders.forEach(o => {
-                    // FITUR BARU: Update Tombol Action & Status Pelacakan
                     let bgStatus = 'gray'; let actionBtn = '';
                     
+                    // PERUBAHAN LOGIKA PETANI: Tidak bisa lagi tekan "Tandai Selesai"
                     if (o.status === 'Menunggu Konfirmasi') {
                         bgStatus = 'var(--accent)'; 
                         actionBtn = `<button class="btn-action success" onclick="updateTrackingSQL('${o.id}', 'Diproses')">Terima & Proses</button>`;
@@ -380,42 +229,28 @@
                         actionBtn = `<button class="btn-action" style="background:#3498db;" onclick="updateTrackingSQL('${o.id}', 'Sedang Dikirim')">Kirim Ekspedisi</button>`;
                     } else if (o.status === 'Sedang Dikirim') {
                         bgStatus = '#9b59b6'; 
-                        actionBtn = `<button class="btn-action" style="background:#27ae60;" onclick="updateTrackingSQL('${o.id}', 'Selesai')">Tandai Selesai</button>`;
+                        actionBtn = `<button class="btn-action" disabled style="background:#bdc3c7; color:#fff;">Menunggu Pembeli Menerima</button>`;
                     } else {
                         bgStatus = 'var(--primary)'; 
                         actionBtn = `<button class="btn-action" disabled style="background:#bdc3c7; color:#fff;">Transaksi Selesai</button>`;
                     }
 
-                    // FITUR BARU: Menampilkan Box Alamat
-                    html += `
-                    <tr>
+                    html += `<tr>
                         <td style="vertical-align: top;"><b style="color:var(--dark);">${o.id}</b><br><small style="color:var(--gray)">${o.tanggal}</small></td>
-                        <td style="vertical-align: top;">
-                            <span style="background:var(--bg-color); padding:5px 10px; border-radius:6px; font-weight:600;">${o.pembeli.toUpperCase()}</span><br>
-                            <div style="background:#f4f6f9; padding:10px; border-radius:8px; font-size:12px; margin-top:8px; border:1px solid #ddd; line-height:1.4;">
-                                <span style="color:var(--primary); font-weight:bold;">📍 Alamat Kirim:</span><br>${o.alamat}
-                            </div>
-                        </td>
+                        <td style="vertical-align: top;"><span style="background:var(--bg-color); padding:5px 10px; border-radius:6px; font-weight:600;">${o.pembeli.toUpperCase()}</span><br><div style="background:#f4f6f9; padding:10px; border-radius:8px; font-size:12px; margin-top:8px; border:1px solid #ddd; line-height:1.4;"><span style="color:var(--primary); font-weight:bold;">📍 Alamat Kirim:</span><br>${o.alamat}</div></td>
                         <td style="vertical-align: top;"><b style="color:var(--primary);">${o.produk}</b><br><small style="font-weight:600;">Jumlah: ${o.qty} Kg</small></td>
                         <td style="font-weight:800; font-size:16px; vertical-align: top;">Rp ${parseInt(o.total).toLocaleString('id-ID')}</td>
                         <td style="vertical-align: top;"><span class="badge" style="background:${bgStatus}; color:white; padding:6px 12px; border-radius:20px; font-size:11px; letter-spacing:0.5px;">${o.status}</span></td>
-                        <td style="vertical-align: top;">${actionBtn}</td>
+                        <td style="vertical-align: top;">${actionBtn}<button class="btn-action" style="background:var(--danger); margin-top:8px; padding:6px 12px; font-size:12px; width:100%;" onclick="hapusPesananSQL('${o.id}')">🗑️ Hapus Order</button></td>
                     </tr>`;
                 });
             }
             document.getElementById('tabel-pesanan').innerHTML = html;
         }
 
-        // FITUR BARU: Fungsi Eksekusi Tracking ke MySQL
-        async function updateTrackingSQL(id, statusBaru) {
-            await fetch(`${API_URL}/orders/${id}`, {
-                method: 'PUT', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status: statusBaru })
-            });
-            fetchDataPesanan(); fetchDataDashboard();
-        }
+        async function updateTrackingSQL(id, statusBaru) { await fetch(`${API_URL}/orders/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: statusBaru }) }); fetchDataPesanan(); fetchDataDashboard(); }
+        async function hapusPesananSQL(id) { if(confirm("Yakin ingin menghapus pesanan ini?")) { await fetch(`${API_URL}/orders/${id}`, { method: 'DELETE' }); fetchDataPesanan(); fetchDataDashboard(); } }
 
-        // Trigger inisialisasi awal
         fetchDataDashboard(); 
     </script>
 </body>
