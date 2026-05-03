@@ -130,4 +130,13 @@ app.put('/api/orders/:id', (req, res) => {
     });
 });
 
+// --- API MENGHAPUS PESANAN ---
+app.delete('/api/orders/:id', (req, res) => {
+    db.query('DELETE FROM orders WHERE id=?', [req.params.id], (err) => {
+        if(err) return res.status(500).json({ success: false, msg: 'Gagal menghapus pesanan.' });
+        res.json({ success: true, msg: 'Pesanan berhasil dihapus.' });
+    });
+});
+
+// app.listen harus di paling bawah
 app.listen(5000, () => console.log('🚀 Server menyala di Port 5000'));
