@@ -52,6 +52,29 @@
         .btn-action { padding: 10px 18px; background: var(--accent); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: 0.3s;} 
         .btn-action.success { background: var(--primary); }
         .btn-action:disabled { background: #bdc3c7; cursor: not-allowed; }
+
+        /* --- CSS KHUSUS HP (MOBILE RESPONSIVE) --- */
+        @media (max-width: 768px) {
+            body { flex-direction: column; overflow-y: auto; }
+            
+            /* Ubah Sidebar menjadi Navigasi Atas */
+            .sidebar { width: 100%; height: auto; border-bottom: 2px solid #1a252f; }
+            .sidebar-header { text-align: center; padding: 20px; }
+            .nav-menu { display: flex; flex-wrap: wrap; justify-content: center; padding: 10px; }
+            .nav-menu li { padding: 10px 15px; font-size: 13px; border-left: none; border-bottom: 3px solid transparent; }
+            .nav-menu li.active { border-left-color: transparent; border-bottom-color: var(--primary); }
+            
+            /* Konten Utama */
+            .main-content { overflow-y: visible; }
+            .topbar { flex-direction: column; gap: 15px; text-align: center; padding: 20px; }
+            .content-area { padding: 20px; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .form-grid { grid-template-columns: 1fr; }
+            
+            /* Buat Tabel bisa di-geser (scroll) ke samping agar tidak hancur */
+            .panel { overflow-x: auto; padding: 15px; }
+            table { min-width: 600px; } 
+        }
     </style>
 </head>
 <body>
