@@ -53,25 +53,19 @@
         .btn-action.success { background: var(--primary); }
         .btn-action:disabled { background: #bdc3c7; cursor: not-allowed; }
 
-        /* --- CSS KHUSUS HP (MOBILE RESPONSIVE) --- */
+        /* --- TAMPILAN RESPONSIVE DIKEMBALIKAN --- */
         @media (max-width: 768px) {
             body { flex-direction: column; overflow-y: auto; }
-            
-            /* Ubah Sidebar menjadi Navigasi Atas */
             .sidebar { width: 100%; height: auto; border-bottom: 2px solid #1a252f; }
             .sidebar-header { text-align: center; padding: 20px; }
             .nav-menu { display: flex; flex-wrap: wrap; justify-content: center; padding: 10px; }
             .nav-menu li { padding: 10px 15px; font-size: 13px; border-left: none; border-bottom: 3px solid transparent; }
             .nav-menu li.active { border-left-color: transparent; border-bottom-color: var(--primary); }
-            
-            /* Konten Utama */
             .main-content { overflow-y: visible; }
             .topbar { flex-direction: column; gap: 15px; text-align: center; padding: 20px; }
             .content-area { padding: 20px; }
             .stats-grid { grid-template-columns: 1fr; }
             .form-grid { grid-template-columns: 1fr; }
-            
-            /* Buat Tabel bisa di-geser (scroll) ke samping agar tidak hancur */
             .panel { overflow-x: auto; padding: 15px; }
             table { min-width: 600px; } 
         }
@@ -166,7 +160,8 @@
         else { document.getElementById('nama-petani').innerText = localStorage.getItem('username').toUpperCase(); }
         function logout() { localStorage.clear(); window.location.href = 'index.html'; }
 
-        const API_URL = 'http://' + window.location.hostname + ':5000/api';
+        // KONEKSI DIKUNCI KE LOCALHOST
+        const API_URL = 'http://localhost:5000/api';
 
         function switchPage(pageId, element) {
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
@@ -216,10 +211,14 @@
         }
 
         async function fetchDataLahan() {
-            const res = await fetch(`${API_URL}/products`); const products = await res.json();
-            let html = '';
-            products.forEach(p => { html += `<tr><td style="color:var(--gray); font-size:13px;">${p.id}</td><td><b style="color:var(--primary);">${p.nama}</b></td><td>${p.lokasi}</td><td><b>${p.stok}</b> Kg</td><td><button class="btn-action" style="background:var(--danger)" onclick="hapusProyekSQL('${p.id}')">Hapus Lahan</button></td></tr>`; });
-            document.getElementById('tabel-lahan-lengkap').innerHTML = html;
+            try {
+                const res = await fetch(`${API_URL}/products`); const products = await res.json();
+                let html = '';
+                products.forEach(p => { html += `<tr><td style="color:var(--gray); font-size:13px;">${p.id}</td><td><b style="color:var(--primary);">${p.nama}</b></td><td>${p.lokasi}</td><td><b>${p.stok}</b> Kg</td><td><button class="btn-action" style="background:var(--danger)" onclick="hapusProyekSQL('${p.id}')">Hapus Lahan</button></td></tr>`; });
+                document.getElementById('tabel-lahan-lengkap').innerHTML = html;
+            } catch (err) {
+                 document.getElementById('tabel-lahan-lengkap').innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--danger); font-weight:bold;">Gagal Koneksi Database MySQL.</td></tr>';
+            }
         }
 
         async function tambahProyekSQL() {
@@ -228,51 +227,73 @@
             const img = document.getElementById('in-img').value || 'https://images.unsplash.com/photo-1592982537447-6f23340be7a5?q=80&w=600';
             if(!nama || !harga || !stok) return alert("Peringatan: Lengkapi form!");
             const newData = { id: 'P-' + Math.floor(Math.random()*90000+10000), nama: nama, kategori: kat, lokasi: '📍 Ekstensi Lahan Baru', harga: harga, stok: stok, status: 'Masa Perawatan', progress: 0, tanggal: 'Baru Tanam', metode: 'Konvensional', desc: 'Deskripsi standar.', img: img };
-            await fetch(`${API_URL}/products`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(newData) });
-            alert("Lahan baru sukses ditambahkan!"); fetchDataLahan(); fetchDataDashboard();
+            try {
+                await fetch(`${API_URL}/products`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(newData) });
+                alert("Lahan baru sukses ditambahkan!"); fetchDataLahan(); fetchDataDashboard();
+            } catch(e) { alert("Gagal menyimpan ke server"); }
         }
 
         async function hapusProyekSQL(id) {
-            if(confirm("Yakin hapus lahan ini secara permanen dari MySQL?")) { await fetch(`${API_URL}/products/${id}`, { method: 'DELETE' }); fetchDataLahan(); fetchDataDashboard(); }
+            if(confirm("Yakin hapus lahan ini secara permanen dari MySQL?")) { 
+                try {
+                    await fetch(`${API_URL}/products/${id}`, { method: 'DELETE' }); fetchDataLahan(); fetchDataDashboard(); 
+                } catch(e) { alert("Gagal menghapus data"); }
+            }
         }
 
         async function fetchDataPesanan() {
-            const res = await fetch(`${API_URL}/orders`); const orders = await res.json();
-            let html = '';
-            if(orders.length === 0) { html = '<tr><td colspan="6" style="text-align:center; padding: 40px; color:var(--gray);">Database Order Kosong.</td></tr>'; } else {
-                orders.forEach(o => {
-                    let bgStatus = 'gray'; let actionBtn = '';
-                    
-                    // PERUBAHAN LOGIKA PETANI: Tidak bisa lagi tekan "Tandai Selesai"
-                    if (o.status === 'Menunggu Konfirmasi') {
-                        bgStatus = 'var(--accent)'; 
-                        actionBtn = `<button class="btn-action success" onclick="updateTrackingSQL('${o.id}', 'Diproses')">Terima & Proses</button>`;
-                    } else if (o.status === 'Diproses') {
-                        bgStatus = '#3498db'; 
-                        actionBtn = `<button class="btn-action" style="background:#3498db;" onclick="updateTrackingSQL('${o.id}', 'Sedang Dikirim')">Kirim Ekspedisi</button>`;
-                    } else if (o.status === 'Sedang Dikirim') {
-                        bgStatus = '#9b59b6'; 
-                        actionBtn = `<button class="btn-action" disabled style="background:#bdc3c7; color:#fff;">Menunggu Pembeli Menerima</button>`;
-                    } else {
-                        bgStatus = 'var(--primary)'; 
-                        actionBtn = `<button class="btn-action" disabled style="background:#bdc3c7; color:#fff;">Transaksi Selesai</button>`;
-                    }
+            try {
+                const res = await fetch(`${API_URL}/orders`); const orders = await res.json();
+                let html = '';
+                if(orders.length === 0) { html = '<tr><td colspan="6" style="text-align:center; padding: 40px; color:var(--gray);">Database Order Kosong.</td></tr>'; } else {
+                    orders.forEach(o => {
+                        let bgStatus = 'gray'; let actionBtn = '';
+                        
+                        if (o.status === 'Menunggu Konfirmasi') {
+                            bgStatus = 'var(--accent)'; 
+                            actionBtn = `<button class="btn-action success" onclick="updateTrackingSQL('${o.id}', 'Diproses')">Terima & Proses</button>`;
+                        } else if (o.status === 'Diproses') {
+                            bgStatus = '#3498db'; 
+                            actionBtn = `<button class="btn-action" style="background:#3498db;" onclick="updateTrackingSQL('${o.id}', 'Sedang Dikirim')">Kirim Ekspedisi</button>`;
+                        } else if (o.status === 'Sedang Dikirim') {
+                            bgStatus = '#9b59b6'; 
+                            actionBtn = `<button class="btn-action" disabled style="background:#bdc3c7; color:#fff;">Menunggu Pembeli Menerima</button>`;
+                        } else {
+                            bgStatus = 'var(--primary)'; 
+                            actionBtn = `<button class="btn-action" disabled style="background:#bdc3c7; color:#fff;">Transaksi Selesai</button>`;
+                        }
 
-                    html += `<tr>
-                        <td style="vertical-align: top;"><b style="color:var(--dark);">${o.id}</b><br><small style="color:var(--gray)">${o.tanggal}</small></td>
-                        <td style="vertical-align: top;"><span style="background:var(--bg-color); padding:5px 10px; border-radius:6px; font-weight:600;">${o.pembeli.toUpperCase()}</span><br><div style="background:#f4f6f9; padding:10px; border-radius:8px; font-size:12px; margin-top:8px; border:1px solid #ddd; line-height:1.4;"><span style="color:var(--primary); font-weight:bold;">📍 Alamat Kirim:</span><br>${o.alamat}</div></td>
-                        <td style="vertical-align: top;"><b style="color:var(--primary);">${o.produk}</b><br><small style="font-weight:600;">Jumlah: ${o.qty} Kg</small></td>
-                        <td style="font-weight:800; font-size:16px; vertical-align: top;">Rp ${parseInt(o.total).toLocaleString('id-ID')}</td>
-                        <td style="vertical-align: top;"><span class="badge" style="background:${bgStatus}; color:white; padding:6px 12px; border-radius:20px; font-size:11px; letter-spacing:0.5px;">${o.status}</span></td>
-                        <td style="vertical-align: top;">${actionBtn}<button class="btn-action" style="background:var(--danger); margin-top:8px; padding:6px 12px; font-size:12px; width:100%;" onclick="hapusPesananSQL('${o.id}')">🗑️ Hapus Order</button></td>
-                    </tr>`;
-                });
+                        html += `<tr>
+                            <td style="vertical-align: top;"><b style="color:var(--dark);">${o.id}</b><br><small style="color:var(--gray)">${o.tanggal}</small></td>
+                            <td style="vertical-align: top;"><span style="background:var(--bg-color); padding:5px 10px; border-radius:6px; font-weight:600;">${o.pembeli.toUpperCase()}</span><br><div style="background:#f4f6f9; padding:10px; border-radius:8px; font-size:12px; margin-top:8px; border:1px solid #ddd; line-height:1.4;"><span style="color:var(--primary); font-weight:bold;">📍 Alamat Kirim:</span><br>${o.alamat}</div></td>
+                            <td style="vertical-align: top;"><b style="color:var(--primary);">${o.produk}</b><br><small style="font-weight:600;">Jumlah: ${o.qty} Kg</small></td>
+                            <td style="font-weight:800; font-size:16px; vertical-align: top;">Rp ${parseInt(o.total).toLocaleString('id-ID')}</td>
+                            <td style="vertical-align: top;"><span class="badge" style="background:${bgStatus}; color:white; padding:6px 12px; border-radius:20px; font-size:11px; letter-spacing:0.5px;">${o.status}</span></td>
+                            <td style="vertical-align: top;">${actionBtn}<button class="btn-action" style="background:var(--danger); margin-top:8px; padding:6px 12px; font-size:12px; width:100%;" onclick="hapusPesananSQL('${o.id}')">🗑️ Hapus Order</button></td>
+                        </tr>`;
+                    });
+                }
+                document.getElementById('tabel-pesanan').innerHTML = html;
+            } catch (err) {
+                 document.getElementById('tabel-pesanan').innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--danger); font-weight:bold;">Gagal Koneksi Database MySQL.</td></tr>';
             }
-            document.getElementById('tabel-pesanan').innerHTML = html;
         }
 
-        async function updateTrackingSQL(id, statusBaru) { await fetch(`${API_URL}/orders/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: statusBaru }) }); fetchDataPesanan(); fetchDataDashboard(); }
-        async function hapusPesananSQL(id) { if(confirm("Yakin ingin menghapus pesanan ini?")) { await fetch(`${API_URL}/orders/${id}`, { method: 'DELETE' }); fetchDataPesanan(); fetchDataDashboard(); } }
+        async function updateTrackingSQL(id, statusBaru) { 
+            try {
+                await fetch(`${API_URL}/orders/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: statusBaru }) }); 
+                fetchDataPesanan(); fetchDataDashboard(); 
+            } catch(e) { alert("Gagal mengupdate status pesanan."); }
+        }
+        
+        async function hapusPesananSQL(id) { 
+            if(confirm("Yakin ingin menghapus pesanan ini?")) { 
+                try {
+                    await fetch(`${API_URL}/orders/${id}`, { method: 'DELETE' }); 
+                    fetchDataPesanan(); fetchDataDashboard(); 
+                } catch(e) { alert("Gagal menghapus pesanan."); }
+            } 
+        }
 
         fetchDataDashboard(); 
     </script>
