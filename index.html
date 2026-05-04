@@ -83,7 +83,8 @@
             .modal-overlay { background: white; }
             .no-print { display: none !important; }
         }
-        /* --- CSS KHUSUS HP (MOBILE RESPONSIVE) --- */
+
+        /* --- TAMPILAN RESPONSIVE DIKEMBALIKAN --- */
         @media (max-width: 768px) {
             .navbar { flex-direction: column; gap: 15px; padding: 15px; }
             .nav-links { flex-wrap: wrap; justify-content: center; gap: 15px; }
@@ -97,6 +98,8 @@
             .footer-grid { grid-template-columns: 1fr; text-align: center; }
             .modal-box { width: 95%; padding: 25px; margin: 10px; }
             .info-grid { grid-template-columns: 1fr; }
+            #modal-tracking .modal-box { overflow-x: auto; }
+            #modal-tracking table { min-width: 600px; }
         }
     </style>
 </head>
@@ -207,7 +210,7 @@
         </div>
     </div>
 
-    <!-- FITUR BARU: MODAL STRUK (INVOICE) -->
+    <!-- MODAL STRUK (INVOICE) -->
     <div id="modal-struk" class="modal-overlay">
         <div class="modal-box" id="print-area" style="max-width: 400px; padding: 40px; border: 1px solid #ddd; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
             <button class="btn-close no-print" onclick="tutupModal('modal-struk')">×</button>
@@ -286,11 +289,14 @@
 
         let allProductsData = [];
         let currentKategori = 'Semua';
-        let myOrdersData = []; // Simpan data order user secara global
+        let myOrdersData = [];
+
+        // KONEKSI DIKUNCI KE LOCALHOST
+        const API_URL = 'http://localhost:5000/api';
 
         async function fetchProducts() {
             try {
-                const response = await fetch('http://localhost:5000/api/products');
+                const response = await fetch(`${API_URL}/products`);
                 allProductsData = await response.json();
                 renderKatalog();
             } catch (error) {
@@ -414,7 +420,7 @@
             };
 
             try {
-                await fetch('http://localhost:5000/api/orders', {
+                await fetch(`${API_URL}/orders`, {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(orderData)
                 });
@@ -431,13 +437,12 @@
             }
         }
 
-        // FITUR BARU: Rendering Tabel Tracking + Tombol Konfirmasi & Struk
         async function bukaTracking() {
             document.getElementById('modal-tracking').classList.add('active');
             document.getElementById('tabel-tracking').innerHTML = '<tr><td colspan="5" style="text-align:center;">Memuat riwayat pelacakan...</td></tr>';
             
             try {
-                const res = await fetch(`http://localhost:5000/api/orders/user/${username}`);
+                const res = await fetch(`${API_URL}/orders/user/${username}`);
                 myOrdersData = await res.json();
                 
                 let html = '';
@@ -447,7 +452,6 @@
                     myOrdersData.forEach(o => {
                         let color = o.status === 'Selesai' ? 'var(--primary)' : (o.status === 'Sedang Dikirim' ? '#3498db' : 'var(--accent)');
                         
-                        // Logika Tombol Aksi Pembeli
                         let btnKonfirmasi = '';
                         if(o.status === 'Sedang Dikirim') {
                             btnKonfirmasi = `<button style="background:var(--primary); color:white; border:none; padding:8px; border-radius:6px; cursor:pointer; font-size:12px; margin-bottom:5px; width:100%; font-weight:bold; box-shadow: 0 2px 5px rgba(39, 174, 96, 0.4);" onclick="konfirmasiSelesai('${o.id}')">✅ Pesanan Diterima</button>`;
@@ -471,23 +475,21 @@
             } catch(e) { document.getElementById('tabel-tracking').innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--danger);">Gagal memuat data dari database.</td></tr>'; }
         }
 
-        // FITUR BARU: Fungsi Pembeli Mengkonfirmasi Pesanan Diterima
         async function konfirmasiSelesai(id) {
             if(confirm("Apakah Anda yakin paket komoditas sudah Anda terima dengan baik? Status akan diubah menjadi Selesai.")) {
                 try {
-                    await fetch(`http://localhost:5000/api/orders/${id}`, {
+                    await fetch(`${API_URL}/orders/${id}`, {
                         method: 'PUT', headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ status: 'Selesai' })
                     });
                     alert("Terima kasih! Pesanan telah selesai. Saldo diteruskan ke petani.");
-                    bukaTracking(); // Refresh modal tracking agar tombol berubah
+                    bukaTracking(); 
                 } catch(e) {
                     alert("Gagal menghubungi server!");
                 }
             }
         }
 
-        // FITUR BARU: Fungsi Membuka Modal Struk Invoice
         function bukaStruk(idOrder) {
             const orderData = myOrdersData.find(o => o.id === idOrder);
             document.getElementById('str-inv').innerText = orderData.id;
@@ -499,7 +501,7 @@
             document.getElementById('str-harga').innerText = 'Rp ' + parseInt(orderData.total).toLocaleString('id-ID');
             document.getElementById('str-total').innerText = 'Rp ' + parseInt(orderData.total).toLocaleString('id-ID');
 
-            tutupModal('modal-tracking'); // Tutup tracking table
+            tutupModal('modal-tracking'); 
             setTimeout(() => { document.getElementById('modal-struk').classList.add('active'); }, 200);
         }
     </script>
