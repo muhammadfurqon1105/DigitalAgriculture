@@ -330,6 +330,33 @@ async function hapusOrder(id) {
         }
 
         fetchDataDashboard(); 
+        // FUNGSI AGAR TOMBOL "SIMPAN PERUBAHAN" DI TABEL BISA JALAN
+async function updateProduk(id) {
+    // Mencari baris tabel tempat tombol diklik
+    const btn = document.querySelector(`button[onclick="updateProduk('${id}')"]`);
+    const row = btn.closest('tr');
+    
+    // Mengambil nilai angka dari input Harga dan Stok di baris tersebut
+    const inputs = row.querySelectorAll('input[type="number"]');
+    const harga = inputs[0].value;
+    const stok = inputs[1].value;
+    const status = row.querySelector('select').value;
+
+    try {
+        const response = await fetch(`${API_URL}/products/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ harga, stok, status })
+        });
+
+        if (response.ok) {
+            alert("✅ Stok dan Harga berhasil diupdate ke Database Aiven!");
+            location.reload(); 
+        }
+    } catch (error) {
+        alert("❌ Gagal terhubung ke server Vercel.");
+    }
+}
     </script>
 </body>
 </html>
