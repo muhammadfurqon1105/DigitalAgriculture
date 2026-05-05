@@ -146,3 +146,4 @@ app.delete('/api/orders/:id', (req, res) => {
 // 5. SETTING PORT UNTUK RENDER.COM
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server menyala di Port ${PORT}`));
+module.exports = app;
