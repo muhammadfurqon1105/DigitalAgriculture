@@ -70,6 +70,23 @@ app.delete('/api/orders/:id', (req, res) => {
     });
 });
 
+// --- API UNTUK PETANI MENGUBAH STOK & HARGA (REAL-TIME) ---
+app.put('/api/products/:id', (req, res) => {
+    const { harga, stok, status } = req.body;
+    db.query('UPDATE products SET harga=?, stok=?, status=? WHERE id=?', 
+    [harga, stok, status, req.params.id], (err) => {
+        if(err) return res.status(500).json(err);
+        res.json({ success: true, msg: 'Data produk diperbarui' });
+    });
+});
+
+// --- API UNTUK PEMBELI MELIHAT PESANANNYA SENDIRI ---
+app.get('/api/orders/user/:pembeli', (req, res) => {
+    db.query('SELECT * FROM orders WHERE pembeli = ? ORDER BY id DESC', [req.params.pembeli], (err, r) => {
+        if(err) return res.status(500).json(err);
+        res.json(r || []);
+    });
+});
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server menyala di Port ${PORT}`));
 module.exports = app;
