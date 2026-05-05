@@ -414,6 +414,7 @@
             const orderData = {
                 id: 'INV-' + Math.floor(Math.random() * 90000 + 10000),
                 pembeli: username, produk: selectedProduct.nama, alamat: alamat,
+                id_produk: selectedProduct.id,
                 qty: jml, total: jml * selectedProduct.harga,
                 status: 'Menunggu Konfirmasi', tanggal: new Date().toLocaleDateString('id-ID'), id_produk: selectedProduct.id 
             };
