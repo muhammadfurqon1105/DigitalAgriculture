@@ -156,6 +156,41 @@
     </main>
 
     <script>
+        // FUNGSI UNTUK TOMBOL "TERIMA & PROSES"
+async function updateStatus(id, statusBaru) {
+    if(confirm(`Ubah status pesanan ${id} menjadi ${statusBaru}?`)) {
+        try {
+            const response = await fetch(`${API_URL}/orders/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: statusBaru })
+            });
+            if(response.ok) {
+                alert("✅ Status berhasil diperbarui!");
+                location.reload(); // Halaman otomatis refresh
+            }
+        } catch (error) {
+            alert("❌ Gagal terhubung ke server.");
+        }
+    }
+}
+
+// FUNGSI UNTUK TOMBOL "HAPUS ORDER"
+async function hapusOrder(id) {
+    if(confirm(`Hapus permanen pesanan ${id}?`)) {
+        try {
+            const response = await fetch(`${API_URL}/orders/${id}`, {
+                method: 'DELETE'
+            });
+            if(response.ok) {
+                alert("🗑️ Pesanan telah dihapus!");
+                location.reload();
+            }
+        } catch (error) {
+            alert("❌ Gagal menghapus.");
+        }
+    }
+}
         if (localStorage.getItem('userRole') !== 'petani') { alert('Akses Ilegal! Halaman khusus Petani.'); window.location.href = 'index.html'; } 
         else { document.getElementById('nama-petani').innerText = localStorage.getItem('username').toUpperCase(); }
         function logout() { localStorage.clear(); window.location.href = 'index.html'; }
