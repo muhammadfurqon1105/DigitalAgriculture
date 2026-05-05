@@ -161,8 +161,7 @@
         function logout() { localStorage.clear(); window.location.href = 'index.html'; }
 
         // KONEKSI DIKUNCI KE LOCALHOST
-        const API_URL = '[https://digital-agriculture-five.vercel.app/api](https://digital-agriculture-five.vercel.app/api)';
-
+        const API_URL = 'https://digital-agriculture-five.vercel.app/api';
         function switchPage(pageId, element) {
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
