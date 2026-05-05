@@ -6,40 +6,45 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const db = mysql.createConnection({ host: 'localhost', user: 'root', password: '' });
+// 1. KONEKSI KE CLOUD DATABASE AIVEN
+const db = mysql.createConnection({ 
+    host: 'digital-agri-db-muhammadfurqon1105-823d.d.aivencloud.com' ,      // Contoh: digital-agri-db...aivencloud.com
+    port: 19687,             // Contoh: 19687 (Hanya angka, tanpa tanda kutip)
+    user: 'avnadmin',
+    password: 'AVNS_L86Qr4SE7eiA4nqefty',
+    database: 'defaultdb',                   // Wajib defaultdb untuk Aiven
+    ssl: {
+        rejectUnauthorized: false            // Wajib ditambahkan untuk keamanan Aiven
+    }
+});
 
 db.connect((err) => {
     if (err) return console.error('❌ Koneksi database gagal:', err);
-    console.log('⏳ Menyiapkan Database dan Tabel...');
+    console.log('✅ BERHASIL! Node.js tersambung ke MySQL Aiven Cloud!');
     
-    db.query('CREATE DATABASE IF NOT EXISTS db_digital_agri', () => {
-        db.query('USE db_digital_agri', () => {
-            
-            // 1. Tabel Produk
-            db.query(`CREATE TABLE IF NOT EXISTS products (
-                id VARCHAR(20) PRIMARY KEY, nama VARCHAR(100), kategori VARCHAR(50), lokasi VARCHAR(100), 
-                harga INT, stok INT, status VARCHAR(50), progress INT, tanggal VARCHAR(50), 
-                metode VARCHAR(50), deskripsi TEXT, img VARCHAR(255)
-            )`);
-            
-            // 2. Tabel Order (Dengan Alamat)
-            db.query(`CREATE TABLE IF NOT EXISTS orders (
-                id VARCHAR(20) PRIMARY KEY, pembeli VARCHAR(50), produk VARCHAR(100), alamat TEXT, 
-                qty INT, total INT, status VARCHAR(50), tanggal VARCHAR(50)
-            )`);
+    // 2. Tabel Produk
+    db.query(`CREATE TABLE IF NOT EXISTS products (
+        id VARCHAR(20) PRIMARY KEY, nama VARCHAR(100), kategori VARCHAR(50), lokasi VARCHAR(100), 
+        harga INT, stok INT, status VARCHAR(50), progress INT, tanggal VARCHAR(50), 
+        metode VARCHAR(50), deskripsi TEXT, img VARCHAR(255)
+    )`);
+    
+    // 3. Tabel Order (Dengan Alamat)
+    db.query(`CREATE TABLE IF NOT EXISTS orders (
+        id VARCHAR(20) PRIMARY KEY, pembeli VARCHAR(50), produk VARCHAR(100), alamat TEXT, 
+        qty INT, total INT, status VARCHAR(50), tanggal VARCHAR(50)
+    )`);
 
-            // 3. Tabel Users (Untuk menyimpan Akun & Alamat Permanen)
-            db.query(`CREATE TABLE IF NOT EXISTS users (
-                username VARCHAR(50) PRIMARY KEY, password VARCHAR(50), role VARCHAR(20), alamat TEXT
-            )`, () => {
-                // Akun Dummy untuk Testing
-                db.query("INSERT IGNORE INTO users VALUES ('furqon', '123', 'pembeli', 'Jl. Tanjung Duren Barat, Jakarta Barat')");
-                db.query("INSERT IGNORE INTO users VALUES ('petani1', '123', 'petani', '')");
-            });
-
-            console.log('✅ Sistem Backend MySQL siap digunakan!');
-        });
+    // 4. Tabel Users (Untuk menyimpan Akun & Alamat Permanen)
+    db.query(`CREATE TABLE IF NOT EXISTS users (
+        username VARCHAR(50) PRIMARY KEY, password VARCHAR(50), role VARCHAR(20), alamat TEXT
+    )`, () => {
+        // Akun Dummy untuk Testing
+        db.query("INSERT IGNORE INTO users VALUES ('furqon', '123', 'pembeli', 'Jl. Tanjung Duren Barat, Jakarta Barat')");
+        db.query("INSERT IGNORE INTO users VALUES ('petani1', '123', 'petani', '')");
     });
+
+    console.log('✅ Sistem Backend siap digunakan!');
 });
 
 // --- API LOGIN ---
@@ -138,5 +143,6 @@ app.delete('/api/orders/:id', (req, res) => {
     });
 });
 
-// app.listen harus di paling bawah
-app.listen(5000, () => console.log('🚀 Server menyala di Port 5000'));
+// 5. SETTING PORT UNTUK RENDER.COM
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`🚀 Server menyala di Port ${PORT}`));
