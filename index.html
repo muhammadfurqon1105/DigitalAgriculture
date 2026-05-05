@@ -437,44 +437,37 @@
             }
         }
 
-        async function bukaTracking() {
-            document.getElementById('modal-tracking').classList.add('active');
-            document.getElementById('tabel-tracking').innerHTML = '<tr><td colspan="5" style="text-align:center;">Memuat riwayat pelacakan...</td></tr>';
-            
-            try {
-                const res = await fetch(`${API_URL}/orders/user/${username}`);
-                myOrdersData = await res.json();
-                
-                let html = '';
-                if(myOrdersData.length === 0) {
-                    html = '<tr><td colspan="5" style="text-align:center; color:var(--gray);">Anda belum memiliki riwayat pesanan.</td></tr>';
-                } else {
-                    myOrdersData.forEach(o => {
-                        let color = o.status === 'Selesai' ? 'var(--primary)' : (o.status === 'Sedang Dikirim' ? '#3498db' : 'var(--accent)');
-                        
-                        let btnKonfirmasi = '';
-                        if(o.status === 'Sedang Dikirim') {
-                            btnKonfirmasi = `<button style="background:var(--primary); color:white; border:none; padding:8px; border-radius:6px; cursor:pointer; font-size:12px; margin-bottom:5px; width:100%; font-weight:bold; box-shadow: 0 2px 5px rgba(39, 174, 96, 0.4);" onclick="konfirmasiSelesai('${o.id}')">✅ Pesanan Diterima</button>`;
-                        }
-                        let btnStruk = `<button style="background:var(--dark); color:white; border:none; padding:8px; border-radius:6px; cursor:pointer; font-size:12px; width:100%; font-weight:bold;" onclick="bukaStruk('${o.id}')">🧾 Lihat / Cetak Struk</button>`;
+       async function bukaTracking() {
+    document.getElementById('modal-tracking').classList.add('active');
+    const tabel = document.getElementById('tabel-tracking');
+    tabel.innerHTML = '<tr><td colspan="5" style="text-align:center;">Memuat data...</td></tr>';
+    
+    const userSekarang = localStorage.getItem('username'); // Mengambil nama Mas Furqon yang sedang login
 
-                        html += `<tr>
-                            <td style="padding: 12px; border-bottom: 1px solid #eee; vertical-align: top;"><b style="color:var(--dark);">${o.id}</b><br><small style="color:var(--gray)">${o.tanggal}</small></td>
-                            <td style="padding: 12px; border-bottom: 1px solid #eee; vertical-align: top;">${o.produk}<br><b style="color:var(--primary);">${o.qty} Kg</b></td>
-                            <td style="padding: 12px; border-bottom: 1px solid #eee; vertical-align: top;"><b style="font-size:15px;">Rp ${o.total.toLocaleString('id-ID')}</b></td>
-                            <td style="padding: 12px; border-bottom: 1px solid #eee; font-size:12px; max-width: 200px; vertical-align: top;">${o.alamat}</td>
-                            <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: center; vertical-align: top;">
-                                <span style="background:${color}; color:white; padding:4px 10px; border-radius:20px; font-size:11px; font-weight:bold; display:inline-block; margin-bottom:10px; letter-spacing: 0.5px;">${o.status}</span><br>
-                                ${btnKonfirmasi}
-                                ${btnStruk}
-                            </td>
-                        </tr>`;
-                    });
-                }
-                document.getElementById('tabel-tracking').innerHTML = html;
-            } catch(e) { document.getElementById('tabel-tracking').innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--danger);">Gagal memuat data dari database.</td></tr>'; }
+    try {
+        const res = await fetch(`${API_URL}/orders/user/${userSekarang}`);
+        const orders = await res.json();
+        
+        let html = '';
+        if(orders.length === 0) {
+            html = '<tr><td colspan="5" style="text-align:center;">Belum ada pesanan.</td></tr>';
+        } else {
+            orders.forEach(o => {
+                html += `
+                <tr>
+                    <td style="padding:10px; border-bottom:1px solid #eee;">${o.id}</td>
+                    <td style="padding:10px; border-bottom:1px solid #eee;">${o.produk} (${o.qty} Kg)</td>
+                    <td style="padding:10px; border-bottom:1px solid #eee;">Rp ${parseInt(o.total).toLocaleString('id-ID')}</td>
+                    <td style="padding:10px; border-bottom:1px solid #eee;"><span style="background:var(--primary); color:white; padding:3px 8px; border-radius:10px; font-size:11px;">${o.status}</span></td>
+                    <td style="padding:10px; border-bottom:1px solid #eee;"><button class="btn-buy" style="padding:5px 10px; font-size:11px;" onclick="bukaStruk('${o.id}')">🧾 Struk</button></td>
+                </tr>`;
+            });
         }
-
+        tabel.innerHTML = html;
+    } catch (e) {
+        tabel.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">Gagal mengambil data.</td></tr>';
+    }
+}
         async function konfirmasiSelesai(id) {
             if(confirm("Apakah Anda yakin paket komoditas sudah Anda terima dengan baik? Status akan diubah menjadi Selesai.")) {
                 try {
